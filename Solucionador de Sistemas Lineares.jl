@@ -1,5 +1,5 @@
 # -------- IMPORTAÇÕES DE BIBLIOTECAS --------
-
+# A FUNÇÃO lu() FOI FEITA CONSIDERANDO RESTRIÇÃO DE QUE NÃO DEVE EXISTIR ZEROS NA DIAGONAL PRINCIPAL DA MATRIZ U DEVIDO O FATO DO OBJETIVO DO PROJETO DE BUSCAR RESOLVER SISTEMAS LINEARES.
 using LinearAlgebra # para importar os comandos, funções de algebra linear.
 using Random
 
