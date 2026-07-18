@@ -509,7 +509,7 @@ function jacobi(A, b, x, tol)
 
     x_aproximado = x_iterativo
 
-    println("Iteração concluida!")
+    println("Iteração concluida! n° de iterações: $iteracao")
     return x_aproximado
 
 end
