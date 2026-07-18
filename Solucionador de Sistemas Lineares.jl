@@ -5,7 +5,23 @@ using LinearAlgebra # para importar os comandos, funções de algebra linear.
 using Random
 
 # ------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES INFERIORES -------------------
+"""
+sti(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR INFERIOR DOS COEFICIENTES DE ORDEM n x n E "b" É O VETOR DOS TERMOS INDEPENDENTES DE ORDEM n x 1.
 
+ESSA FUNÇÃO VAI RESOVER UM SISTEMA LINEAR Ax = b USANDO UM SISTEMA TRIANGULAR INFERIOR.
+
+Ex: A = [1 0 0; 2 3 0; 1 4 5] e b = [1, 3, 6]
+
+sti(A, b) = [1, 0.3333333..., 0.73333333...]
+
+PARA TIRAR A PROVA REAL:
+
+julia) x = sti(A, b)
+
+julia) A*x
+
+O RESULTADO SERÁ O VETOR b.
+"""
 function sti(matriz, vetor) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
     # Toda vez que iniciarmos essa função definimos o vetor solução e o tamanho da matriz.
@@ -36,6 +52,23 @@ end
 
 # ------------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES SUPERIORES -------------------------
 
+"""
+sts(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR SUPERIOR DOS COEFICIENTES DE ORDEM n x n E "b" É O VETOR DOS TERMOS INDEPENDENTES.
+
+ESSA FUNÇÃO VAI RESOLVER O SISTEMA LINEAR Ax = b VIA SISTEMA TRIANGULAR SUPERIOR.
+
+Ex: A = [1 3 4; 0 4 3; 0 0 -1] e b = [3, -2, 1]
+
+sts(A, b) = [6.25, 0.25, -1.0]
+
+PARA TIRAR A PROVA REAL:
+
+julia) x = sts(A, b)
+
+julia) A*x
+
+O RESULTADO SERÁ O VETOR b.
+"""
 function sts(matriz, vetor) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
     # toda vez que iniciamos essa função definimos a variável "tamanho" que recebe o tamanho da matriz e a variável "vetor_sol" que recebe o nosso vetor x solução.
@@ -63,7 +96,27 @@ end
 # -------------- FIM DA FUNÇÃO --------------
 
 # ------------ ALGORTIMO DA DECOMPOSIÇÃO LU COM USO DO TEOREMA DA DECOMPOSIÇÃO LU.
+"""
+lu(A). ONDE "A" É UMA MATRIZ DE ORDEM n x n.
 
+ESSA FUNÇÃO VAI DECOMPOR A MATRIZ "A" NO PRODUTO LU ONDE "L" É UMA MATRIZ TRIANGULAR INFERIOR E "U" É UMA MATRIZ TRIANGULAR SUPERIOR.
+
+EX: A = [2 3 4; 2 -1 1; 2 2 6]
+
+lu(A) ==> L = [1 0 0; 1 1 0; 1 0.25 1] e U = [2 3 4; 0 -4 -3; 0 0 2.75]
+
+PARA TIRAR A PROVA REAL:
+
+julia) L, U = lu(A)
+
+julia) L*U == A
+
+OU
+
+julia) isapprox(L*U, A)
+
+O RESULTADO FINAL SERÁ UM VALOR BOOLEANO "true" OU "false".
+"""
 function lu(matriz) # função responsável por verificar se é possivel decompor a matriz de coeficientes A em duas matrizes LU. Se possível, vai decompor a matriz A e mostrar as duas matrizes L e U obtidas.
 
     # criamos as variáveis tamanho, menor_principal e continuar
@@ -158,7 +211,14 @@ end
 # --------------- FUNÇÃO: Resolver o sistema linear Ax = b no formato (LU)x = b ------------------.
 
 # É necessário inserir informações como: A matriz triangular inferior L, A matriz triangular superior U e o vetor de coeficientes b.
+"""
+resolver_lu(L, U ,b). A FUNÇÃO RESOLVE O SISTEMA LINEAR Ax = b PELO MÉTODO (LU)x = b.
 
+"L" E "U" SÃO AS MATRIZES OBTIDAS PELA DECOMPOSIÇÃO LU E "b" É O VETOR DOS TERMOS INDEPENDENTES.
+
+A FUNÇÃO UTILIZA AS FUNÇÕES sti() E sts() PARA O CÁLCULO.
+
+"""
 function resolver_lu(L, U, b)
 
     # -------------- VERIFICAÇÕES ANTES DE INICIAR O PROCESSO DE SOLUÇÃO DE SISTEMA POR LU --------------
@@ -180,7 +240,7 @@ function resolver_lu(L, U, b)
     end
 
     # ---------------  FIM DAS VERIFICAÇÕES ----------------------
-
+    # 
     # --------------- ALGORITMO PARA RESOLVER SISTEMA LINEAR VIA LU. UTILIZAMOS AS FUNÇÕES STI() E STS() JÁ CRIADAS PARA APROVEITAR ------------------
     
     y = sti(LowerTriangular(L), b) # obtemos o vetor y para usar depois na função sts()
@@ -193,7 +253,26 @@ function resolver_lu(L, U, b)
 end
 
 # ---------------- FUNÇÃO: DECOMPOR A MATRIZ EM UM PRODUTO R^T * R (MÉTODO DE CHOLESKY) -----------------
+"""
+chol(A). ONDE A É UMA MATRIZ SIMÉTRICA DEFINIDA POSITIVA DE ORDEM n x n.
+A FUNÇÃO VAI DECOMPOR A MATRIZ A NO PRODUTO R^T * R VIA MÉTODO DE CHOLESKY.
+A MATRIZ "R^T" É A MATRIZ TRANSPOSTA DE "R" E "R" É UMA MATRIZ TRIANGULAR SUPERIOR.
 
+EX: A = [5 2; 2 1]
+
+chol(A) ==> R = [2.23607 0.89443; 0 0.44721] e R^T = [2.23607 0; 0.89443 0.44721]
+
+PARA TIRAR A PROVA REAL:
+
+julia) R, T = chol(A)
+julia) T * R == A
+
+OU
+
+julia) isapprox(T*R, A)
+
+O VALOR FINAL SERÁ UM VALOR BOOLEANO "true" OU "false".
+"""
 function chol(matriz)
 
     println("Iniciando Decomposição via Cholesky....\n")
@@ -293,7 +372,7 @@ end
 # ---------------- FIM DA FUNÇÃO --------------------
 
 
-# -------------------- FUNÇÃO QUE TESTA lu() para matrizes variando de dimensão 1 até 100 ----------------------------
+# -------------------- FUNÇÃO QUE TESTA lu() para matrizes variando de dimensão 1 até 100. IMPLEMENTAR? ----------------------------
 
 function testar_lu()
     
@@ -338,7 +417,29 @@ end
 # ---------------- FIM DA FUNÇÃO ---------------
 
 # --------------- FUNÇÃO: MÉTODO ITERATIVO DE JACOBI ---------------------
+# CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
 
-function jacobi()
+function jacobi(A, b, x) 
 
+    tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A
+    x_iterativo = zeros(tamanho) # CRIAR UM VETOR "x aproximação k+1" PARA ARMAZENAR O RESULTADO DO MÉTODO ITERATIVO.
+
+    # VERIFICAR SE A MATRIZ "A" É DIAGONALMENTE DOMINANTE, USAREMOS A NORMA LINHA NOS ELEMETOS DA LINHA PARA COMPARAR COM O TERMO DA DIAGONAL PRINCIPAL DA MESMA LINHA.
+
+    for i 1:tamanho
+    
+        soma_linear = 0 # ARMAZENAR A SOMA DOS ELEMENTOS DA LINHA DESCONSIDERANDO O DA DIAGONAL PRINCIPAL.
+    
+        for j 1:tamanho
+
+            if j == i
+
+                soma_linear += 0
+
+            end
+
+
+
+        end
+    end
 end
