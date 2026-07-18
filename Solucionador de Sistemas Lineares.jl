@@ -418,28 +418,91 @@ end
 
 # --------------- FUNÇÃO: MÉTODO ITERATIVO DE JACOBI ---------------------
 # CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
+"""
+jacobi(A, b, x, tol). ONDE "A" É A MATRIZ QUADRADA DOS COEFICIENTES, "b" É O VETOR DOS TERMOS INDEPENDENTES, "x" É O VETOR SOLUÇÃO CHUTE INICIAL e "tol" É A TOLERÂNCIA FIXA.
+ESSA FUNÇÃO VAI CALCULAR UMA SOLUÇÃO APROXIMADA PARA O SISTEMA "Ax = b" BASEADO NOS ITENS INSERIDOS NA FUNÇÃO UTILIZANDO O MÉTODO ITERATIVO DE JACOBI.
 
-function jacobi(A, b, x) 
+EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0] e tol = 0.01
+
+O RESULTADO VAI SER => x_aproximado = []
+
+"""
+function jacobi(A, b, x, tol) 
 
     tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A
     x_iterativo = zeros(tamanho) # CRIAR UM VETOR "x aproximação k+1" PARA ARMAZENAR O RESULTADO DO MÉTODO ITERATIVO.
+    H = zeros(tamanho, tamanho)
+    g = zeros(tamanho)
+    iteracao = 0
+    loop = true
 
     # VERIFICAR SE A MATRIZ "A" É DIAGONALMENTE DOMINANTE, USAREMOS A NORMA LINHA NOS ELEMETOS DA LINHA PARA COMPARAR COM O TERMO DA DIAGONAL PRINCIPAL DA MESMA LINHA.
 
-    for i 1:tamanho
+    for i in 1:tamanho
     
-        soma_linear = 0 # ARMAZENAR A SOMA DOS ELEMENTOS DA LINHA DESCONSIDERANDO O DA DIAGONAL PRINCIPAL.
+        soma_1 = 0 # ARMAZENAR A SOMA DOS ELEMENTOS DA LINHA DESCONSIDERANDO O DA DIAGONAL PRINCIPAL.
     
-        for j 1:tamanho
+        for j in 1:tamanho
 
-            if j == i
+            if j != i
 
-                soma_linear += 0
+                soma_1 += abs(A[i,j])
 
             end
 
+            if abs(A[i,i]) < abs(soma_1)
 
+                error("A matriz \"A\" não é diagonalmente dominante.")
 
+            end
         end
     end
+
+    println("A matriz \"A\" é diagonalmente dominante! Iniciando o Método de Jacobi\n")
+
+    # APÓS A VERIFICAÇÃO, INICIAR O MÉTODO DE JACOBI. VAMOS CONSTRUIR A MATRIZ ITERATIVA E A MATRIZ ITERATIVA DOS TERMOS INDEPENDENTES.
+
+    for i in 1:tamanho
+
+        g[i] = b[i]/A[i, i] # CONSTRUÇÃO DO VETOR INDEPENDENTE ITERATIVO.
+
+        for j in 1:tamanho
+
+            if j != i # CONSTRUÇÃO DA MATRIZ ITERATIVA.
+                
+                H[i, j] = -A[i, j]/A[i, i]
+
+            end
+
+        end
+
+    end
+
+    while loop == true
+
+        iteracao += 1
+
+        x_iterativo = H * x + g
+        
+        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo)
+
+        if erro_relativo < tol
+
+            loop = false
+
+        else 
+
+            x = x_iterativo # MUDANÇA DE "x" PARA RECEBER O RESULTADO E CONTINUAR A PRÓXIMA ITERAÇÃO.
+
+        end
+
+        
+
+    end
+
+    x_aproximado = x_iterativo
+
+    println("Iteração concluida! $fim ")
+    return x_aproximado
+
 end
