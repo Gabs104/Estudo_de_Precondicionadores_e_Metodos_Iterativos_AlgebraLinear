@@ -419,12 +419,13 @@ end
 # --------------- FUNÇÃO: MÉTODO ITERATIVO DE JACOBI ---------------------
 # CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
 """
-jacobi(A, b, x, tol). ONDE "A" É A MATRIZ QUADRADA DOS COEFICIENTES, "b" É O VETOR DOS TERMOS INDEPENDENTES, "x" É O VETOR SOLUÇÃO CHUTE INICIAL e "tol" É A TOLERÂNCIA FIXA.
+jacobi(A, b, x, tol). "A" É A MATRIZ QUADRADA DOS COEFICIENTES, \n"b" É O VETOR DOS TERMOS INDEPENDENTES, \n"x" É O VETOR SOLUÇÃO CHUTE INICIAL e \n"tol" É A TOLERÂNCIA FIXA.
 ESSA FUNÇÃO VAI CALCULAR UMA SOLUÇÃO APROXIMADA PARA O SISTEMA "Ax = b" BASEADO NOS ITENS INSERIDOS NA FUNÇÃO UTILIZANDO O MÉTODO ITERATIVO DE JACOBI.
 
 EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0] e tol = 0.01
 
-O RESULTADO VAI SER => x_aproximado = []
+O RESULTADO VAI SER => [0.3984375, 1.1953125].
+QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
 
 """
 function jacobi(A, b, x, tol) 
@@ -502,7 +503,7 @@ function jacobi(A, b, x, tol)
 
     x_aproximado = x_iterativo
 
-    println("Iteração concluida! $fim ")
+    println("Iteração concluida!")
     return x_aproximado
 
 end
