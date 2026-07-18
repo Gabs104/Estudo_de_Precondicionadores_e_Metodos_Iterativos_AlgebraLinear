@@ -416,7 +416,8 @@ end
 
 # ---------------- FIM DA FUNÇÃO ---------------
 
-# --------------- FUNÇÃO: MÉTODO ITERATIVO DE JACOBI ---------------------
+# --------------- FUNÇÃO: MÉTODO ITERATIVO DE JACOBI-RICHARDSON ---------------------
+
 # CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
 """
 jacobi(A, b, x, tol). 
@@ -432,16 +433,15 @@ EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0] e tol = 0.01
 
 O RESULTADO VAI SER => [0.3984375, 1.1953125].
 QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
-
 """
 function jacobi(A, b, x, tol) 
 
     tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A
     x_iterativo = zeros(tamanho) # CRIAR UM VETOR "x aproximação k+1" PARA ARMAZENAR O RESULTADO DO MÉTODO ITERATIVO.
-    H = zeros(tamanho, tamanho)
-    g = zeros(tamanho)
-    iteracao = 0
-    loop = true
+    H = zeros(tamanho, tamanho) # CONSTRUÇÃO DA MATRIZ ITERATIVA.
+    g = zeros(tamanho) # CONSTRUÇÃODO VETOR DOS TERMOS INDEPENDENTES ITERATIVO.
+    iteracao = 0 # PARA CONTABILIZAR A ITERAÇÃO
+    loop = true # USAR NO LAÇO-WHILE.
 
     # VERIFICAR SE A MATRIZ "A" É DIAGONALMENTE DOMINANTE, USAREMOS A NORMA LINHA NOS ELEMETOS DA LINHA PARA COMPARAR COM O TERMO DA DIAGONAL PRINCIPAL DA MESMA LINHA.
 
@@ -457,7 +457,7 @@ function jacobi(A, b, x, tol)
 
             end
 
-            if abs(A[i,i]) < abs(soma_1)
+            if abs(A[i,i]) < abs(soma_1) # VERIFICA SE O TERMO DA DIAGONAL PRINCIPAL É MENOR QUE A SOMA DOS OUTROS TERMOS DA MESMA LINHA.
 
                 error("A matriz \"A\" não é diagonalmente dominante.")
 
@@ -485,15 +485,17 @@ function jacobi(A, b, x, tol)
 
     end
 
-    while loop == true
+    # ENTRA NO LAÇO-WHILE E INICIA O ALGORITMO PARA CRIAR SOLUÇÕES QUE SE APROXIMAM DA SOLUÇÃO DO SISTEMA.
+
+    while loop == true 
 
         iteracao += 1
 
         x_iterativo = H * x + g
         
-        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo)
+        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
-        if erro_relativo < tol
+        if erro_relativo < tol # SE O ERRO RELATIVO É MENOR QUE A TOLERANCIA, OBTEMOS A SOLUÇÃO APROXIMADA.
 
             loop = false
 
@@ -511,5 +513,13 @@ function jacobi(A, b, x, tol)
 
     println("Iteração concluida! n° de iterações: $iteracao")
     return x_aproximado
+
+end
+
+# ---------------- FIM DA FUNÇÃO -----------------------
+
+# ---------------- FUNÇÃO: MÉTODO ITERATIVO DE GAUSS-SEIDEL ----------------------
+
+function gauss()
 
 end
