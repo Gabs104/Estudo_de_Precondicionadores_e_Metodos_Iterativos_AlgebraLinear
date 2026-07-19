@@ -18,6 +18,40 @@ function help()
     println()
     println("funções existentes: sts(), sti(), lu(), chol(), jacobi(), gauss()\ndigite \"?\" e a função sem/com o parênteses para obter mais informações.")
 end
+
+function criterios() # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
+
+    ismatrizquadrada()
+
+    coluna = size(b, 2)
+
+    if coluna != 1
+        error("o vetor dos termos independentes não é um vetor coluna!")
+    end
+
+    coluna = size(x, 2)
+
+    if coluna != 1
+        error("o vetor chute inicial não é um vetor coluna!")
+    end
+
+end
+
+function ismatrizquadrada() # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
+
+    linha = size(A, 1)
+    coluna = size(A, 2)
+
+    if linha != coluna
+        error("A matriz inserida não é quadrada e sim uma $linha x $coluna.")
+    end
+    
+end
+
+function sassenfeld()
+
+end
+
 # ------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES INFERIORES -------------------
 """
 sti(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR INFERIOR DOS COEFICIENTES DE ORDEM n x n E "b" É O VETOR DOS TERMOS INDEPENDENTES DE ORDEM n x 1.
@@ -36,11 +70,18 @@ julia) A*x
 
 O RESULTADO SERÁ O VETOR b.
 """
-function sti(matriz, vetor) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
+function sti(A, b) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
+
+    linha = size(A, 1)
+    coluna = size(A, 2)
+
+    if linha != coluna
+        error("A matriz inserida não é quadrada e sim uma $linha x $coluna.")
+    end
 
     # Toda vez que iniciarmos essa função definimos o vetor solução e o tamanho da matriz.
 
-    tamanho = size(matriz, 1) # fornece a o n° de linhas da matriz, como é quadrada o numero de colunas é igual.
+    tamanho = size(A, 1) # fornece a o n° de linhas da matriz, como é quadrada o numero de colunas é igual.
 
     vetor_sol = zeros(Float64, tamanho) # cria um vetor cheio de zeros com tamanho igual ao número de linhas da matriz que se esta resolvendo. Esse é o vetor que vai armazenar a solução.
 
@@ -49,11 +90,11 @@ function sti(matriz, vetor) # o algoritmo de fato que resolve o sistema triangul
         somatorio = 0.0 # para cada iteração, a soma linear muda.
 
         for j in 1:i-1 # é o somatório de j indo de 1 até i-1 somando a_ij*x_j
-            somatorio += matriz[i, j] * vetor_sol[j]
+            somatorio += A[i, j] * vetor_sol[j]
         end
 
         # aqui calculamos o valor de x após ter realizado o somatório e armazenamos no vetor solução.
-        vetor_sol[i] = (vetor[i] - somatorio) / matriz[i, i]
+        vetor_sol[i] = (b[i] - somatorio) / A[i, i]
 
     end
 
@@ -85,11 +126,13 @@ julia) A*x
 
 O RESULTADO SERÁ O VETOR b.
 """
-function sts(matriz, vetor) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
+function sts(A, b) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
+
+    ismatrizquadrada() # VERIFICA SE A MATRIZ É QUADRADA.
 
     # toda vez que iniciamos essa função definimos a variável "tamanho" que recebe o tamanho da matriz e a variável "vetor_sol" que recebe o nosso vetor x solução.
 
-    tamanho = size(matriz, 1) # o size retorna quantas linhas tem essa matriz, se colocar o 2 ele retorna a quantidade de colunas.
+    tamanho = size(A, 1) # o size retorna quantas linhas tem essa matriz, se colocar o 2 ele retorna a quantidade de colunas.
 
     vetor_sol = zeros(Float64, tamanho) # ele é composto com entradas de zeros que são do tipo float64.
 
@@ -98,10 +141,10 @@ function sts(matriz, vetor) # o algoritmo de fato que resolve o sistema triangul
         somatorio = 0.0 # a soma linear que
 
             for j in i+1:tamanho
-                somatorio += matriz[i,j] * vetor_sol[j]
+                somatorio += A[i,j] * vetor_sol[j]
             end
 
-        vetor_sol[i] = (vetor[i]-somatorio)/matriz[i,i]
+        vetor_sol[i] = (b[i]-somatorio)/A[i,i]
 
     end
 
@@ -133,26 +176,17 @@ julia) isapprox(L*U, A)
 
 O RESULTADO FINAL SERÁ UM VALOR BOOLEANO "true" OU "false".
 """
-function lu(matriz) # função responsável por verificar se é possivel decompor a matriz de coeficientes A em duas matrizes LU. Se possível, vai decompor a matriz A e mostrar as duas matrizes L e U obtidas.
+function lu(A) # função responsável por verificar se é possivel decompor a matriz de coeficientes A em duas matrizes LU. Se possível, vai decompor a matriz A e mostrar as duas matrizes L e U obtidas.
 
     # criamos as variáveis tamanho, menor_principal e continuar
     # tamanho: recebe o tamanho da matriz quadrada inserida.
     # menor_principal: cria uma matriz cheia de zeros de tamanho igual a tamanho-1
 
-    # ---------- VERIFICAÇÃO SE A MATRIZ INSERIDA É QUADRADA OU NÃO ----------------
+    ismatrizquadrada() # VERIFICA SE MATRIZ É QUADRADA OU NÃO.
 
-    linha = size(matriz, 1)
-    coluna = size(matriz, 2)
-
-    if linha != coluna
-        error("A matriz inserida não é quadrada e sim uma $linha x $coluna.")
-    end
-
-    # ---------- FIM DA VERIFICAÇÃO --------------
-
-    tamanho = size(matriz, 1)
-    matriz_l = Matrix{Float64}(I, tamanho, tamanho)
-    matriz_u = zeros(Float64, tamanho, tamanho)
+    tamanho = size(A, 1)
+    L = Matrix{Float64}(I, tamanho, tamanho)
+    U = zeros(Float64, tamanho, tamanho)
     println("Iniciando Decomposição...\n")
 
     # ------------- ALGORITMO DE DECOMPOSIÇÃO LU -------------.
@@ -163,9 +197,9 @@ function lu(matriz) # função responsável por verificar se é possivel decompo
 
             if i <= j && i == 1 # o caso em que i <= j e i = 1 que é quando os coeficientes u_1j é igual a a_1j.
 
-                matriz_u[i, j] = matriz[i, j]
+                U[i, j] = A[i, j]
 
-                if matriz_u[i,i] == 0 
+                if U[i,i] == 0 
                     error("o elemento u_$i$i é nulo. Pelo Teorema da Decomposição LU, essa matriz não admite decomposição.")
                 end
 
@@ -175,13 +209,13 @@ function lu(matriz) # função responsável por verificar se é possivel decompo
 
                 for k in 1:i-1
 
-                    somatorio_u += matriz_l[i,k]*matriz_u[k,j]
+                    somatorio_u += L[i,k]*U[k,j]
 
                 end
 
-                matriz_u[i, j] = matriz[i, j] - somatorio_u
+                U[i, j] = A[i, j] - somatorio_u
 
-                if matriz_u[i,i] == 0
+                if U[i,i] == 0
                     error("o elemento u_$i$i é nulo. Pelo Teorema da Decomposição LU, essa matriz não admite decomposição.")
                 end
 
@@ -191,11 +225,11 @@ function lu(matriz) # função responsável por verificar se é possivel decompo
 
                 for k in 1:j-1
 
-                    somatorio_l += matriz_l[i,k]*matriz_u[k,j]
+                    somatorio_l += L[i,k]*U[k,j]
 
                 end
 
-                matriz_l[i,j] = (matriz[i, j] - somatorio_l)/matriz_u[j, j]
+                L[i,j] = (A[i, j] - somatorio_l)/U[j, j]
 
             end
         end
@@ -207,18 +241,18 @@ function lu(matriz) # função responsável por verificar se é possivel decompo
 
     # O programa finaliza e retorna as matrizes L e U cujo produto da a matriz A.
 
-    produto_lu = matriz_l*matriz_u # salvamos o produto LU.
+    produto_lu = L*U # salvamos o produto LU.
 
-    if isapprox(norm(matriz - (produto_lu)), 0) == false # será se é uma boa comparação?
+    if isapprox(norm(A - (produto_lu)), 0) == false # será se é uma boa comparação?
 
-        erro_rel = norm(matriz - (produto_lu))/norm(matriz) # a norma padrão da julia é a norm p = 2 que é igual a norma encontrada em bibliografias de álgebra linear. A norma de Frobenius.
+        erro_rel = norm(A - (produto_lu))/norm(matriz) # a norma padrão da julia é a norm p = 2 que é igual a norma encontrada em bibliografias de álgebra linear. A norma de Frobenius.
         println("O resultado do produto LU foi aproximado por um erro relativo de: $erro_rel\n")
 
     end
 
     println("---------Decomposição finalizada!---------\n")
 
-    return matriz_l, matriz_u # retorno das matrizes L e U para poder trabalhar com a solução via LU do sistema linear desejado.
+    return L, U # retorno das matrizes L e U para poder trabalhar com a solução via LU do sistema linear desejado.
 
 end
 
@@ -289,15 +323,15 @@ julia) isapprox(T*R, A)
 
 O VALOR FINAL SERÁ UM VALOR BOOLEANO "true" OU "false".
 """
-function chol(matriz)
+function chol(A)
 
     println("Iniciando Decomposição via Cholesky....\n")
 
     # PRIMEIRO CHECAMOS SE A MATRIZ INSERIDA É SIMÉTRICA OU NÃO. BASTA VERIFICAR SE A = A^T
 
-    matriz_t = transpose(matriz)
+    matriz_t = transpose(A)
 
-    if isapprox(matriz_t, matriz) == false
+    if isapprox(matriz_t, A) == false
 
         error("A matriz inserida não é simétrica! A ≠ A^T.")
 
@@ -306,8 +340,8 @@ function chol(matriz)
     # APÓS A VERIFICAÇÃO, INICIAMOS O CÁLCULO DA MATRIZ R VIA MÉTODO DE CHOLESKY.
 
     
-    tamanho = size(matriz, 1) # PEGAMOS A DIMENSÃO USANDO COMO REFERÊNCIA O N° DE LINHAS DA MATRIZ.
-    matriz_r = zeros(Float64, tamanho, tamanho)
+    tamanho = size(A, 1) # PEGAMOS A DIMENSÃO USANDO COMO REFERÊNCIA O N° DE LINHAS DA MATRIZ.
+    R = zeros(Float64, tamanho, tamanho)
 
     # INICIAMOS O ALGORITMO.
 
@@ -317,15 +351,15 @@ function chol(matriz)
 
             if j == i && i == 1 # CASO i = j E i = 1, CASO EM QUE ESTAMOS CALCULANDO O ELEMENTO r_11.
 
-                if matriz[i, i] < 0 || matriz[i, i] == 0 
+                if A[i, i] < 0 || A[i, i] == 0 
 
-                    r = matriz[i, i]
+                    r = A[i, i]
 
                     error("O termo r_$i$i = $r é um valor não positivo. Portanto, não é possível fazer a decomposição via cholesky.")
                 
                 else
 
-                    matriz_r[i,i] = sqrt(matriz[i, i])
+                    R[i,i] = sqrt(A[i, i])
 
                 end
 
@@ -335,11 +369,11 @@ function chol(matriz)
 
                 for k in 1:i-1
 
-                    somatorio_1 += (matriz_r[k, i])^2
+                    somatorio_1 += (R[k, i])^2
 
                 end
 
-                result = matriz[i, i] - somatorio_1
+                result = A[i, i] - somatorio_1
 
                 if result < 0 || result == 0
 
@@ -347,7 +381,7 @@ function chol(matriz)
 
                 else
 
-                    matriz_r[i, i] = sqrt(result)
+                    R[i, i] = sqrt(result)
 
                 end
 
@@ -357,11 +391,11 @@ function chol(matriz)
 
                 for k in 1:i-1
 
-                    somatorio_2 += matriz_r[k, i]*matriz_r[k, j]
+                    somatorio_2 += R[k, i]*R[k, j]
 
                 end
 
-                matriz_r[i, j] = (matriz[i, j] - somatorio_2)/matriz_r[i, i]
+                R[i, j] = (A[i, j] - somatorio_2)/R[i, i]
 
             end
 
@@ -369,11 +403,11 @@ function chol(matriz)
 
     end
 
-    matriz_r_t = transpose(matriz_r)
+    R_transposta = transpose(R)
 
     println("-------------- Decomposição via Cholesky finalizada! ---------------\n")
 
-    return matriz_r, matriz_r_t
+    return R, R_transposta
 
 end
 
@@ -436,32 +470,40 @@ end
 
 # CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
 """
-jacobi(A, b, x, ϵ). 
+jacobi(A, b, x, tol, n). 
 
 "A" É A MATRIZ QUADRADA DOS COEFICIENTES.
 "b" É O VETOR DOS TERMOS INDEPENDENTES.
 "x" É O VETOR SOLUÇÃO CHUTE INICIAL.
-"ϵ" É A TOLERÂNCIA FIXA.
+"tol" É A TOLERÂNCIA FIXA.
 "n" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
 
 ESSA FUNÇÃO VAI CALCULAR UMA SOLUÇÃO APROXIMADA PARA O SISTEMA "Ax = b" BASEADO NOS ITENS INSERIDOS NA FUNÇÃO UTILIZANDO O MÉTODO ITERATIVO DE JACOBI.
+É FEITO A VERIFICAÇÃO DA MATRIZ SER DIAGONALMENTE DOMINANTE OU NÃO VIA A NORMA COLUNA.
 
 EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0], tol = 0.01 e n = 2
 
 O RESULTADO VAI SER => [0.3984375, 1.1953125].
 QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
 """
-function jacobi(A, b, x, ϵ, n)
+function jacobi(A, b, x, tol, n)
+
+    criterios() # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
     if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool
         error("o valor de n tem que ser um número maior ou igual a 1.")
     end
 
-    tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A
+    tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A.
+
     x_iterativo = zeros(tamanho) # CRIAR UM VETOR "x aproximação k+1" PARA ARMAZENAR O RESULTADO DO MÉTODO ITERATIVO.
+
     H = zeros(tamanho, tamanho) # CONSTRUÇÃO DA MATRIZ ITERATIVA.
+
     g = zeros(tamanho) # CONSTRUÇÃODO VETOR DOS TERMOS INDEPENDENTES ITERATIVO.
+
     iteracao = 0 # PARA CONTABILIZAR A ITERAÇÃO
+
     loop = true # USAR NO LAÇO-WHILE.
 
     # VERIFICAR SE A MATRIZ "A" É DIAGONALMENTE DOMINANTE, USAREMOS A NORMA LINHA NOS ELEMETOS DA LINHA PARA COMPARAR COM O TERMO DA DIAGONAL PRINCIPAL DA MESMA LINHA.
@@ -516,7 +558,12 @@ function jacobi(A, b, x, ϵ, n)
         
         erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
-        if erro_relativo < ϵ # SE O ERRO RELATIVO É MENOR QUE A TOLERANCIA, OBTEMOS A SOLUÇÃO APROXIMADA.
+        if x_iterativo == NaN # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
+
+            error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
+
+        elseif erro_relativo < tol # SE O ERRO RELATIVO É MENOR QUE A TOLERANCIA, OBTEMOS A SOLUÇÃO APROXIMADA.
+
             loop = false
         else 
             x = x_iterativo # MUDANÇA DE "x" PARA RECEBER O RESULTADO E CONTINUAR A PRÓXIMA ITERAÇÃO.
@@ -535,12 +582,12 @@ end
 
 # ---------------- FUNÇÃO: MÉTODO ITERATIVO DE GAUSS-SEIDEL ----------------------
 """
-gauss(A, b, x, ϵ).
+gauss(A, b, x, tol).
 
 "A" É A MATRIZ DOS COEFICIENTES DO SISTEMA LINEAR.
 "b" É O VETOR DOS TERMOS INDEPENDENTES.
 "x" É O VETOR CHUTE INICIAL.
-"ϵ" É A TOLERÂNCIA FIXA.
+"tol" É A TOLERÂNCIA FIXA.
 "n" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
 
 A FUNÇÃO VAI CALCULAR UMA APROXIMAÇÃO PARA A SOLUÇÃO DO SISTEMA LINEAR PELO
@@ -549,23 +596,32 @@ MÉTODO ITERATIVO DE GAUSS-SIEDEL. UTILIZA-SE O CRITÉRIO DE SASSENFELD.
 
 EX: A = [10 2 1; 1 5 1; 2 3 10], b = [14, 11, 8], x = [0, 0, 0], ϵ = 0.01 e n = 1.
 
-gauss(A, b, x, ϵ)
+gauss(A, b, x, tol)
 
 Iteração concluida em 4 passos!
 A solução do sistema é: [1, 2, 0]
 
 """
-function gauss(A, b, x, ϵ, n)
+
+function gauss(A, b, x, tol, n)
+
+    criterios() # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
     if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool
         error("o valor de n tem que ser um número maior ou igual a 1.")
     end
+
     x = Vector{Float64}(x) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
+
     tamanho = size(A, 1) # DIMENSÃO DA MATRIZ INSERIDA
+
     β = zeros(tamanho) # CRIAÇÃO DO VETOR BETA PARA VERIFICAÇÃO DO CRITÉRIO DE SASSENFIELD.
-    x_iterativo = zeros(tamanho) # CRIAÇÃO DO VETOR PARA ITERAÇÃO (K+1)
+
+    x_iterativo = zeros(tamanho) # CRIAÇÃO DO VETOR PARA ITERAÇÃO (K+1).
+
     loop = true # PARA CONTINUAR O MÉTODO ITERATIVO.
-    iteracao = 0
+
+    iteracao = 0 # PARA CONTABILIZAR AS ITERAÇÕES
 
     # INICIAREMOS AQUI O CÁLCULO DO CRITÉRIO DE SASSENFIELD.
 
@@ -626,9 +682,19 @@ function gauss(A, b, x, ϵ, n)
             x_iterativo[i] = b[i]/A[i, i] - soma_3 - soma_4 # ARMAZENAR O RESULTADO NO VETOR ITERAÇÃO.
 
         end
+        
+        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO.
 
-        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo)
-        if erro_relativo < ϵ
+        # CASO A MATRIZ NÃO ATENDER O CRITÉRIO DE SASSENFELD, PODE OCORRER DE A ITERAÇÃO NÃO CONVERGIR PARA A SOLUÇÃO DO SISTEMA.
+        # NESSE CASO, SERA ADICIONADO UM CONDICIONAL IF PARA CANCELAR A ITERAÇÃO E NÃO FICAR RODANDO O PROGRAMA INFINITAMENTE.
+        # UMA MOTIVAÇÃO PARA O ESTUDO DE MÉTODOS DE PRECONDICIONAMENTO DE MATRIZES!
+        # OBSERVAÇÃO: TESTE PARA MATRIZES DE DIMENSÃO MAIOR E VERIFIQUE QUE O CRITÉRIO NÃO É SATISFEITO FACILMENTE, NISSO O VETOR "x_iterativo" EXPLODE PARA +∞ ou -∞
+
+        if x_iterativo == NaN
+            error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
+        end
+
+        if erro_relativo < tol
 
             x_aproximado = round.(x_iterativo, digits = n)
             println("Iteração concluida em $iteracao passos!\n")
