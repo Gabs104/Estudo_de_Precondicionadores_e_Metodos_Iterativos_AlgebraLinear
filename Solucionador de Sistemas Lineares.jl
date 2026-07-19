@@ -1,8 +1,9 @@
 # -------- IMPORTAÇÕES DE BIBLIOTECAS --------
 # A FUNÇÃO lu() FOI FEITA CONSIDERANDO RESTRIÇÃO DE QUE NÃO DEVE EXISTIR ZEROS NA DIAGONAL PRINCIPAL DA MATRIZ U DEVIDO O FATO DO OBJETIVO DO PROJETO DE BUSCAR RESOLVER SISTEMAS LINEARES.
 # SUJEITO A MUDANÇAS.
+
 using LinearAlgebra # para importar os comandos, funções de algebra linear.
-using Random
+using Random # IMPORTAR PARA USAR A BIBLIOTECA DE GERAÇÃO ALEATÓRIA.
 
 # ------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES INFERIORES -------------------
 """
@@ -436,6 +437,7 @@ QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
 """
 function jacobi(A, b, x, tol) 
 
+    plot_retas = true
     tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A
     x_iterativo = zeros(tamanho) # CRIAR UM VETOR "x aproximação k+1" PARA ARMAZENAR O RESULTADO DO MÉTODO ITERATIVO.
     H = zeros(tamanho, tamanho) # CONSTRUÇÃO DA MATRIZ ITERATIVA.
@@ -502,11 +504,8 @@ function jacobi(A, b, x, tol)
         else 
 
             x = x_iterativo # MUDANÇA DE "x" PARA RECEBER O RESULTADO E CONTINUAR A PRÓXIMA ITERAÇÃO.
-
         end
-
-        
-
+             
     end
 
     x_aproximado = x_iterativo
