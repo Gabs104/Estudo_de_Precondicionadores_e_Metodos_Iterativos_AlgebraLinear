@@ -516,7 +516,7 @@ function jacobi(A, b, x, ϵ, n)
         
         erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
-        if erro_relativo < tol # SE O ERRO RELATIVO É MENOR QUE A TOLERANCIA, OBTEMOS A SOLUÇÃO APROXIMADA.
+        if erro_relativo < ϵ # SE O ERRO RELATIVO É MENOR QUE A TOLERANCIA, OBTEMOS A SOLUÇÃO APROXIMADA.
             loop = false
         else 
             x = x_iterativo # MUDANÇA DE "x" PARA RECEBER O RESULTADO E CONTINUAR A PRÓXIMA ITERAÇÃO.
@@ -560,7 +560,7 @@ function gauss(A, b, x, ϵ, n)
     if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool
         error("o valor de n tem que ser um número maior ou igual a 1.")
     end
-
+    x = Vector{Float64}(x) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
     tamanho = size(A, 1) # DIMENSÃO DA MATRIZ INSERIDA
     β = zeros(tamanho) # CRIAÇÃO DO VETOR BETA PARA VERIFICAÇÃO DO CRITÉRIO DE SASSENFIELD.
     x_iterativo = zeros(tamanho) # CRIAÇÃO DO VETOR PARA ITERAÇÃO (K+1)
@@ -638,8 +638,7 @@ function gauss(A, b, x, ϵ, n)
 
         else
 
-            x = x_iterativo
-            x_iterativo = zeros(tamanho)
+            x .= x_iterativo
 
         end
 
