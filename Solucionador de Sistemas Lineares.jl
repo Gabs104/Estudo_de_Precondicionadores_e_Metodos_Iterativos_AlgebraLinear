@@ -19,25 +19,25 @@ function help()
     println("funções existentes: sts(), sti(), lu(), chol(), jacobi(), gauss()\ndigite \"?\" e a função sem/com o parênteses para obter mais informações.")
 end
 
-function criterios() # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
+function criterios(A, b, x, n) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
 
-    ismatrizquadrada()
+    ismatrizquadrada(A)
 
-    coluna = size(b, 2)
-
-    if coluna != 1
-        error("o vetor dos termos independentes não é um vetor coluna!")
-    end
+    isvetorcoluna(b)
 
     coluna = size(x, 2)
 
     if coluna != 1
         error("o vetor chute inicial não é um vetor coluna!")
     end
+    
+    if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool # VERIFICA SE É UM NÚMERO >= 1 OU NÃO.
+        error("o valor de n tem que ser um número maior ou igual a 1.")
+    end
 
 end
 
-function ismatrizquadrada() # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
+function ismatrizquadrada(A) # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
 
     linha = size(A, 1)
     coluna = size(A, 2)
@@ -46,6 +46,16 @@ function ismatrizquadrada() # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
         error("A matriz inserida não é quadrada e sim uma $linha x $coluna.")
     end
     
+end
+
+function isvetorcoluna(b) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS INDEPENDENTES É COLUNA.
+
+    coluna = size(b, 2)
+
+    if coluna != 1
+        error("o vetor dos termos independentes não é um vetor coluna!")
+    end
+
 end
 
 # ------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES INFERIORES -------------------
@@ -68,12 +78,9 @@ O RESULTADO SERÁ O VETOR b.
 """
 function sti(A, b) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
-    linha = size(A, 1)
-    coluna = size(A, 2)
+    ismatrizquadrada(A)  # VERIFICA SE A MATRIZ É QUADRADA.
 
-    if linha != coluna
-        error("A matriz inserida não é quadrada e sim uma $linha x $coluna.")
-    end
+    isvetorcoluna(b) # VERIFICA SE O VETOR É COLUNA.
 
     # Toda vez que iniciarmos essa função definimos o vetor solução e o tamanho da matriz.
 
@@ -124,7 +131,9 @@ O RESULTADO SERÁ O VETOR b.
 """
 function sts(A, b) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
-    ismatrizquadrada() # VERIFICA SE A MATRIZ É QUADRADA.
+    ismatrizquadrada(A)  # VERIFICA SE A MATRIZ É QUADRADA.
+
+    isvetorcoluna(b) # VERIFICA SE O VETOR É COLUNA.
 
     # toda vez que iniciamos essa função definimos a variável "tamanho" que recebe o tamanho da matriz e a variável "vetor_sol" que recebe o nosso vetor x solução.
 
@@ -178,7 +187,7 @@ function lu(A) # função responsável por verificar se é possivel decompor a m
     # tamanho: recebe o tamanho da matriz quadrada inserida.
     # menor_principal: cria uma matriz cheia de zeros de tamanho igual a tamanho-1
 
-    ismatrizquadrada() # VERIFICA SE MATRIZ É QUADRADA OU NÃO.
+    ismatrizquadrada(A) # VERIFICA SE MATRIZ É QUADRADA OU NÃO.
 
     tamanho = size(A, 1)
     L = Matrix{Float64}(I, tamanho, tamanho)
@@ -273,7 +282,9 @@ function resolver_lu(L, U, b)
     linha_L = size(L, 1)
 
 
-    if linha_b != linha_L
+    isvetorcoluna(b) # VERIFICA SE O VETOR b É UM VETOR COLUNA.
+
+    if linha_b != linha_L # vetificar se as linhas são iguais 
         error("o vetor b inserido tem dimensão $linha_b enquanto que a matriz L tem dimensão $linha_L\n Portanto, não é possível realizar o produto L^(-1) * b")
     end
 
@@ -320,6 +331,8 @@ julia) isapprox(T*R, A)
 O VALOR FINAL SERÁ UM VALOR BOOLEANO "true" OU "false".
 """
 function chol(A)
+
+    ismatrizquadrada(A)
 
     println("Iniciando Decomposição via Cholesky....\n")
 
@@ -484,11 +497,7 @@ QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
 """
 function jacobi(A, b, x, tol, n)
 
-    criterios() # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
-
-    if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool
-        error("o valor de n tem que ser um número maior ou igual a 1.")
-    end
+    criterios(A, b, x, n) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
     tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A.
 
@@ -601,11 +610,7 @@ A solução do sistema é: [1, 2, 0]
 
 function gauss(A, b, x, tol, n)
 
-    criterios() # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
-
-    if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool
-        error("o valor de n tem que ser um número maior ou igual a 1.")
-    end
+    criterios(A, b, x, n) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
     x = Vector{Float64}(x) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
 
