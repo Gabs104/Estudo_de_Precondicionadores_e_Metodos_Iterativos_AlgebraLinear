@@ -15,8 +15,7 @@ using Random # IMPORTAR PARA USAR A BIBLIOTECA DE GERAÇÃO ALEATÓRIA.
 FORNECE AS FUNÇÕES EXISTENTES NO PROGRAMA.
 """
 function help()
-    println()
-    println("funções existentes: sts(), sti(), lu(), chol(), jacobi(), gauss()\ndigite \"?\" e a função sem/com o parênteses para obter mais informações.")
+    println("\nfunções existentes: sts(), sti(), lu(), chol(), jacobi(), gauss()\ndigite \"?\" e a função sem/com o parênteses para obter mais informações.")
 end
 
 function criterios(A, b, x, n) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
@@ -28,11 +27,11 @@ function criterios(A, b, x, n) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITER
     coluna = size(x, 2)
 
     if coluna != 1
-        error("o vetor chute inicial não é um vetor coluna!")
+        error("\no vetor chute inicial não é um vetor coluna!")
     end
     
     if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool # VERIFICA SE É UM NÚMERO >= 1 OU NÃO.
-        error("o valor de n tem que ser um número maior ou igual a 1.")
+        error("\no valor de n tem que ser um número maior ou igual a 1.")
     end
 
 end
@@ -43,7 +42,7 @@ function ismatrizquadrada(A) # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
     coluna = size(A, 2)
 
     if linha != coluna
-        error("A matriz inserida não é quadrada e sim uma $linha x $coluna.")
+        error("\nA matriz inserida não é quadrada e sim uma $linha x $coluna.")
     end
     
 end
@@ -53,7 +52,7 @@ function isvetorcoluna(b) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS INDEPEND
     coluna = size(b, 2)
 
     if coluna != 1
-        error("o vetor dos termos independentes não é um vetor coluna!")
+        error("\no vetor dos termos independentes não é um vetor coluna!")
     end
 
 end
