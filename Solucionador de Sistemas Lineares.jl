@@ -10,6 +10,14 @@
 using LinearAlgebra # para importar os comandos, funções de algebra linear.
 using Random # IMPORTAR PARA USAR A BIBLIOTECA DE GERAÇÃO ALEATÓRIA.
 
+# -------- FIM DAS IMPORTAÇÕES DE BIBLIOTECAS ----------
+"""
+FORNECE AS FUNÇÕES EXISTENTES NO PROGRAMA.
+"""
+function help()
+    println()
+    println("funções existentes: sts(), sti(), lu(), chol(), jacobi(), gauss()\ndigite \"?\" e a função sem/com o parênteses para obter mais informações.")
+end
 # ------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES INFERIORES -------------------
 """
 sti(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR INFERIOR DOS COEFICIENTES DE ORDEM n x n E "b" É O VETOR DOS TERMOS INDEPENDENTES DE ORDEM n x 1.
