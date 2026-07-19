@@ -48,10 +48,6 @@ function ismatrizquadrada() # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
     
 end
 
-function sassenfeld()
-
-end
-
 # ------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES INFERIORES -------------------
 """
 sti(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR INFERIOR DOS COEFICIENTES DE ORDEM n x n E "b" É O VETOR DOS TERMOS INDEPENDENTES DE ORDEM n x 1.
