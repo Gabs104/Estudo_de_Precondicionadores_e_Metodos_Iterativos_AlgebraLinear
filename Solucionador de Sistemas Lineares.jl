@@ -445,6 +445,10 @@ QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
 """
 function jacobi(A, b, x, ϵ, n)
 
+    if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool
+        error("o valor de n tem que ser um número maior ou igual a 1.")
+    end
+
     tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A
     x_iterativo = zeros(tamanho) # CRIAR UM VETOR "x aproximação k+1" PARA ARMAZENAR O RESULTADO DO MÉTODO ITERATIVO.
     H = zeros(tamanho, tamanho) # CONSTRUÇÃO DA MATRIZ ITERATIVA.
@@ -544,6 +548,10 @@ A solução do sistema é: [1, 2, 0]
 
 """
 function gauss(A, b, x, ϵ, n)
+
+    if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool
+        error("o valor de n tem que ser um número maior ou igual a 1.")
+    end
 
     tamanho = size(A, 1) # DIMENSÃO DA MATRIZ INSERIDA
     β = zeros(tamanho) # CRIAÇÃO DO VETOR BETA PARA VERIFICAÇÃO DO CRITÉRIO DE SASSENFIELD.
