@@ -1,5 +1,10 @@
 # -------- IMPORTAÇÕES DE BIBLIOTECAS --------
+
 # A FUNÇÃO lu() FOI FEITA CONSIDERANDO RESTRIÇÃO DE QUE NÃO DEVE EXISTIR ZEROS NA DIAGONAL PRINCIPAL DA MATRIZ U DEVIDO O FATO DO OBJETIVO DO PROJETO DE BUSCAR RESOLVER SISTEMAS LINEARES.
+# A FUNÇÃO jacobi() UTILIZA O CRITÉRIO DE DIAGONALMENTE DOMINANTE.
+# A FUNÇÃO gauss() UTILIZA O CRITÉRIO DE SASSENFELD.
+# A FUNÇÃO chol() EXIGE QUE A MATRIZ SEJA SIMÉTRICA E DEFINIDA POSITIVA (EXISTEM VÁRIAS FORMAS DE DESCOBRIR ISSO).
+
 # SUJEITO A MUDANÇAS.
 
 using LinearAlgebra # para importar os comandos, funções de algebra linear.
@@ -54,7 +59,9 @@ end
 # ------------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES SUPERIORES -------------------------
 
 """
-sts(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR SUPERIOR DOS COEFICIENTES DE ORDEM n x n E "b" É O VETOR DOS TERMOS INDEPENDENTES.
+sts(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR SUPERIOR DOS COEFICIENTES DE ORDEM n x n. 
+
+"b" É O VETOR DOS TERMOS INDEPENDENTES.
 
 ESSA FUNÇÃO VAI RESOLVER O SISTEMA LINEAR Ax = b VIA SISTEMA TRIANGULAR SUPERIOR.
 
@@ -421,23 +428,23 @@ end
 
 # CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
 """
-jacobi(A, b, x, tol). 
+jacobi(A, b, x, ϵ). 
 
 "A" É A MATRIZ QUADRADA DOS COEFICIENTES.
 "b" É O VETOR DOS TERMOS INDEPENDENTES.
 "x" É O VETOR SOLUÇÃO CHUTE INICIAL.
-"tol" É A TOLERÂNCIA FIXA.
+"ϵ" É A TOLERÂNCIA FIXA.
+"n" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
 
 ESSA FUNÇÃO VAI CALCULAR UMA SOLUÇÃO APROXIMADA PARA O SISTEMA "Ax = b" BASEADO NOS ITENS INSERIDOS NA FUNÇÃO UTILIZANDO O MÉTODO ITERATIVO DE JACOBI.
 
-EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0] e tol = 0.01
+EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0], tol = 0.01 e n = 2
 
 O RESULTADO VAI SER => [0.3984375, 1.1953125].
 QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
 """
-function jacobi(A, b, x, tol) 
+function jacobi(A, b, x, ϵ, n)
 
-    plot_retas = true
     tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A
     x_iterativo = zeros(tamanho) # CRIAR UM VETOR "x aproximação k+1" PARA ARMAZENAR O RESULTADO DO MÉTODO ITERATIVO.
     H = zeros(tamanho, tamanho) # CONSTRUÇÃO DA MATRIZ ITERATIVA.
@@ -498,17 +505,14 @@ function jacobi(A, b, x, tol)
         erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
         if erro_relativo < tol # SE O ERRO RELATIVO É MENOR QUE A TOLERANCIA, OBTEMOS A SOLUÇÃO APROXIMADA.
-
             loop = false
-
         else 
-
             x = x_iterativo # MUDANÇA DE "x" PARA RECEBER O RESULTADO E CONTINUAR A PRÓXIMA ITERAÇÃO.
         end
              
     end
 
-    x_aproximado = x_iterativo
+    x_aproximado = round.(x_iterativo, digits = n)
 
     println("Iteração concluida! n° de iterações: $iteracao")
     return x_aproximado
@@ -518,7 +522,111 @@ end
 # ---------------- FIM DA FUNÇÃO -----------------------
 
 # ---------------- FUNÇÃO: MÉTODO ITERATIVO DE GAUSS-SEIDEL ----------------------
+"""
+gauss(A, b, x, ϵ).
 
-function gauss()
+"A" É A MATRIZ DOS COEFICIENTES DO SISTEMA LINEAR.
+"b" É O VETOR DOS TERMOS INDEPENDENTES.
+"x" É O VETOR CHUTE INICIAL.
+"ϵ" É A TOLERÂNCIA FIXA.
+"n" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
+
+A FUNÇÃO VAI CALCULAR UMA APROXIMAÇÃO PARA A SOLUÇÃO DO SISTEMA LINEAR PELO
+MÉTODO ITERATIVO DE GAUSS-SIEDEL. UTILIZA-SE O CRITÉRIO DE SASSENFELD.
+É POSSÍVEL ARMAZENAR O VETOR SOLUÇÃO.
+
+EX: A = [10 2 1; 1 5 1; 2 3 10], b = [14, 11, 8], x = [0, 0, 0], ϵ = 0.01 e n = 1.
+
+gauss(A, b, x, ϵ)
+
+Iteração concluida em 4 passos!
+A solução do sistema é: [1, 2, 0]
+
+"""
+function gauss(A, b, x, ϵ, n)
+
+    tamanho = size(A, 1) # DIMENSÃO DA MATRIZ INSERIDA
+    β = zeros(tamanho) # CRIAÇÃO DO VETOR BETA PARA VERIFICAÇÃO DO CRITÉRIO DE SASSENFIELD.
+    x_iterativo = zeros(tamanho) # CRIAÇÃO DO VETOR PARA ITERAÇÃO (K+1)
+    loop = true # PARA CONTINUAR O MÉTODO ITERATIVO.
+    iteracao = 0
+
+    # INICIAREMOS AQUI O CÁLCULO DO CRITÉRIO DE SASSENFIELD.
+
+    for i in 1:tamanho
+
+        soma_1 = 0 # PARA O PRIMEIRO SOMATÓRIO.
+        soma_2 = 0 # PARA O SEGUNDO SOMATÓRIO.
+
+        for j in 1:i-1 # PRIMEIRO SOMATÓRIO.
+
+            soma_1 += abs(A[i, j]/A[i, i]) * β[j]
+
+        end
+
+        for j in i+1:tamanho # SEGUNDO SOMATÓRIO.
+
+            soma_2 += abs(A[i, j]/A[i, i])
+
+        end
+
+        β[i] = soma_1 + soma_2 # INSERIMOS O RESULTADO NO VETOR BETA PARA ARMAZENAR.
+
+    end
+
+    if maximum(β) >= 1 # O CRITÉRIO EXIGE QUE O MÁXIMO DAS ENTRADAS DE BETA SEJA INFERIOR A 1.
+
+        println("a matriz inserida não atende o critério de Sassenfeld!\n Portanto, a convergência não ocorre rapidamente...\n")
+
+    else
+
+        println("A matriz inserida atende o critério de sassenfeld! Portanto, a convergência ocorre rapidamente...\n")
+
+    end
+
+    # INICIAMOS AQUI O MÉTODO ITERATIVO
+
+    while loop == true
+
+        iteracao += 1
+
+        for i in 1:tamanho
+
+            soma_3 = 0 # PARA ARMAZENAR O RESULTADO DO PRIMEIRO SOMATÓRIO.
+            soma_4 = 0 # PARA ARMAZENAR O RESULTADO DO SEGUNDO SOMATÓRIO.
+
+            for j in 1:i-1 # PRIMEIRO SOMATÓRIO
+
+                soma_3 += A[i, j]/A[i, i] * x_iterativo[j]
+
+            end
+
+            for j in i+1:tamanho # SEGUNDO SOMATÓRIO
+
+                soma_4 += A[i, j]/A[i, i] * x[j]
+
+            end
+
+            x_iterativo[i] = b[i]/A[i, i] - soma_3 - soma_4 # ARMAZENAR O RESULTADO NO VETOR ITERAÇÃO.
+
+        end
+
+        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo)
+        if erro_relativo < ϵ
+
+            x_aproximado = round.(x_iterativo, digits = n)
+            println("Iteração concluida em $iteracao passos!\n")
+            println("A solução do sistema é: $x_aproximado\n")
+            loop = false
+            return x_aproximado
+
+        else
+
+            x = x_iterativo
+            x_iterativo = zeros(tamanho)
+
+        end
+
+    end
 
 end
