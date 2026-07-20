@@ -535,7 +535,7 @@ function jacobi(A, b, x, tol, digitos, limite::Int64)
     
         soma_1 = 0 # ARMAZENAR A SOMA DOS ELEMENTOS DA LINHA DESCONSIDERANDO O DA DIAGONAL PRINCIPAL.
     
-        for j in 1:tamanho
+        for j in 1:tamanho # 
 
             if j != i
 
@@ -548,6 +548,8 @@ function jacobi(A, b, x, tol, digitos, limite::Int64)
                 @warn "A matriz \"A\" não é diagonalmente dominante. Portanto, a convergência pode não ocorrer!"
                 verificacao = false
                 sleep(1)
+
+                # SE APOS VERIFICA ISSO AQUI, SERIA BOM SE ESSA PARTE JA FOSSE PULADA PARA A ITERAÇÃO, CERTO?
 
             end
 
