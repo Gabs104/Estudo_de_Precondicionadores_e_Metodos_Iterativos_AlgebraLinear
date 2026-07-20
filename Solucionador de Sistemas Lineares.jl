@@ -527,6 +527,8 @@ function jacobi(A, b, x, tol, digitos, limite::Int64)
 
     loop = true # USAR NO LAÇO-WHILE.
 
+    verificacao = true
+
     # VERIFICAR SE A MATRIZ "A" É DIAGONALMENTE DOMINANTE, USAREMOS A NORMA LINHA NOS ELEMETOS DA LINHA PARA COMPARAR COM O TERMO DA DIAGONAL PRINCIPAL DA MESMA LINHA.
 
     for i in 1:tamanho
@@ -541,11 +543,14 @@ function jacobi(A, b, x, tol, digitos, limite::Int64)
 
             end
 
-            if abs(A[i,i]) <= abs(soma_1) # VERIFICA SE O TERMO DA DIAGONAL PRINCIPAL É MENOR QUE A SOMA DOS OUTROS TERMOS DA MESMA LINHA. ESTRITAMENTE DIAGONALMENTE DOMINANTE.
+            if abs(A[i,i]) <= abs(soma_1) && verificacao == true # VERIFICA SE O TERMO DA DIAGONAL PRINCIPAL É MENOR QUE A SOMA DOS OUTROS TERMOS DA MESMA LINHA. ESTRITAMENTE DIAGONALMENTE DOMINANTE.
 
                 @warn "A matriz \"A\" não é diagonalmente dominante. Portanto, a convergência pode não ocorrer!"
+                verificacao = false
+                sleep(1)
 
             end
+
         end
     end
 
@@ -579,7 +584,7 @@ function jacobi(A, b, x, tol, digitos, limite::Int64)
         
         erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
-        if any(isnan, x_iterativo) == true # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
+        if any(isnan, x_iterativo) # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
 
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
 
@@ -715,11 +720,9 @@ function gauss(A, b, x, tol, digitos, limite)
         # UMA MOTIVAÇÃO PARA O ESTUDO DE MÉTODOS DE PRECONDICIONAMENTO DE MATRIZES!
         # OBSERVAÇÃO: TESTE PARA MATRIZES DE DIMENSÃO MAIOR E VERIFIQUE QUE O CRITÉRIO NÃO É SATISFEITO FACILMENTE, NISSO O VETOR "x_iterativo" EXPLODE PARA +∞ ou -∞
 
-        if any(isnan, x_iterativo) == true
+        if any(isnan, x_iterativo)
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
         end
-
-        println(iteracao)
 
         if erro_relativo < tol && limite == 0
 
