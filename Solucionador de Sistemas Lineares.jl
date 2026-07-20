@@ -33,15 +33,13 @@ end
 
 function isvetorcoluna(b) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS INDEPENDENTES É COLUNA.
 
-    coluna = size(b, 2)
-
-    if coluna != 1
+    if ndims(b) != 1
         error("\no vetor dos termos independentes não é um vetor coluna!")
     end
 
 end
 
-function criterios(A, b, x, n, limite) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
+function criterios(A, b, x, digitos, limite) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
 
     ismatrizquadrada(A)
 
@@ -53,7 +51,7 @@ function criterios(A, b, x, n, limite) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTO
         error("\no vetor chute inicial não é um vetor coluna!")
     end
     
-    if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool # VERIFICA SE É UM NÚMERO >= 1 OU NÃO.
+    if digitos < 1 || typeof(digitos) == Char || typeof(digitos) == String || typeof(digitos) == Bool # VERIFICA SE É UM NÚMERO >= 1 OU NÃO.
         error("\no valor de n tem que ser um número maior ou igual a 1.")
     end
 
@@ -323,7 +321,9 @@ end
 """
 
 chol(A). ONDE A É UMA MATRIZ SIMÉTRICA DEFINIDA POSITIVA DE ORDEM n x n.
+
 A FUNÇÃO VAI DECOMPOR A MATRIZ A NO PRODUTO R^T * R VIA MÉTODO DE CHOLESKY.
+
 A MATRIZ "R^T" É A MATRIZ TRANSPOSTA DE "R" E "R" É UMA MATRIZ TRIANGULAR SUPERIOR.
 
 EX: A = [5 2; 2 1]
@@ -333,6 +333,7 @@ chol(A) ==> R = [2.23607 0.89443; 0 0.44721] e R^T = [2.23607 0; 0.89443 0.44721
 PARA TIRAR A PROVA REAL:
 
 julia) R, T = chol(A)
+
 julia) T * R == A
 
 OU
@@ -491,26 +492,32 @@ end
 # CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
 """
 
-jacobi(A, b, x, tol, n, limite). 
-
-"A" É A MATRIZ QUADRADA DOS COEFICIENTES.
-"b" É O VETOR DOS TERMOS INDEPENDENTES.
-"x" É O VETOR SOLUÇÃO CHUTE INICIAL.
-"tol" É A TOLERÂNCIA FIXA.
-"n" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
-"limite" É O NÚMERO LIMITE DE ITERAÇÕES A SER REALIZADA. CASO limite = 0 SERÁ FEITO ITERAÇÕES ATÉ PASSAR TOLERÂNCIA FIXA.
+jacobi(A, b, x, tol, digitos, lim). 
 
 ESSA FUNÇÃO VAI CALCULAR UMA SOLUÇÃO APROXIMADA PARA O SISTEMA "Ax = b" BASEADO NOS ITENS INSERIDOS NA FUNÇÃO UTILIZANDO O MÉTODO ITERATIVO DE JACOBI.
+
+"A" É A MATRIZ QUADRADA DOS COEFICIENTES.
+
+"b" É O VETOR DOS TERMOS INDEPENDENTES.
+
+"x" É O VETOR SOLUÇÃO CHUTE INICIAL.
+
+"tol" É A TOLERÂNCIA FIXA.
+
+"digitos" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
+
+"lim" É O NÚMERO ITERAÇÕES A SER REALIZADA. CASO limite = 0 SERÁ FEITO ITERAÇÕES ATÉ PASSAR TOLERÂNCIA FIXA.
+
 É FEITO A VERIFICAÇÃO DA MATRIZ SER DIAGONALMENTE DOMINANTE OU NÃO VIA A NORMA COLUNA.
 
-EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0], tol = 0.01 e n = 2
+EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0], tol = 0.01 e digitos = 2, limite = 0
 
-O RESULTADO VAI SER => [0.3984375, 1.1953125].
-QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
+O RESULTADO VAI SER => [0.4, 1.2].
+
 """
-function jacobi(A, b, x, tol, n, limite::Int64)
+function jacobi(A, b, x, tol, digitos, limite::Int64)
 
-    criterios(A, b, x, n, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
+    criterios(A, b, x, digitos, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
     tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A.
 
@@ -540,7 +547,7 @@ function jacobi(A, b, x, tol, n, limite::Int64)
 
             if abs(A[i,i]) < abs(soma_1) # VERIFICA SE O TERMO DA DIAGONAL PRINCIPAL É MENOR QUE A SOMA DOS OUTROS TERMOS DA MESMA LINHA.
 
-                error("A matriz \"A\" não é diagonalmente dominante.")
+                @warn "A matriz \"A\" não é diagonalmente dominante. Portanto, a convergência pode não ocorrer!"
 
             end
         end
@@ -576,7 +583,7 @@ function jacobi(A, b, x, tol, n, limite::Int64)
         
         erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
-        if isnan(x_iterativo[1]) == true # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
+        if isany(isnan, x_iterativo) == true # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
 
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
 
@@ -595,7 +602,7 @@ function jacobi(A, b, x, tol, n, limite::Int64)
     end
 
     
-    x_aproximado = round.(x_iterativo, digits = n)
+    x_aproximado = round.(x_iterativo, digits = digitos)
     println("Iteração concluida! n° de iterações: $iteracao")
 
     return x_aproximado
@@ -629,10 +636,9 @@ Iteração concluida em 4 passos!
 A solução do sistema é: [1, 2, 0]
 
 """
+function gauss(A, b, x, tol, digitos, limite)
 
-function gauss(A, b, x, tol, n, limite)
-
-    criterios(A, b, x, n, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
+    criterios(A, b, x, digitos, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
     x = Vector{Float64}(x) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
 
@@ -671,7 +677,7 @@ function gauss(A, b, x, tol, n, limite)
 
     if maximum(β) >= 1 # O CRITÉRIO EXIGE QUE O MÁXIMO DAS ENTRADAS DE BETA SEJA INFERIOR A 1.
 
-        println("a matriz inserida não atende o critério de Sassenfeld!\n Portanto, a convergência não ocorre rapidamente...\n")
+        @warn "A matriz inserida não atende o critério de Sassenfeld!\n Portanto, a convergência pode não ocorrer!\n"
 
     else
 
@@ -713,7 +719,7 @@ function gauss(A, b, x, tol, n, limite)
         # UMA MOTIVAÇÃO PARA O ESTUDO DE MÉTODOS DE PRECONDICIONAMENTO DE MATRIZES!
         # OBSERVAÇÃO: TESTE PARA MATRIZES DE DIMENSÃO MAIOR E VERIFIQUE QUE O CRITÉRIO NÃO É SATISFEITO FACILMENTE, NISSO O VETOR "x_iterativo" EXPLODE PARA +∞ ou -∞
 
-        if isnan(x_iterativo[1]) == true
+        if isany(isnan, x_iterativo) == true
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
         end
 
@@ -722,7 +728,7 @@ function gauss(A, b, x, tol, n, limite)
         if erro_relativo < tol && limite == 0
 
             println(erro_relativo, tol)
-            x_aproximado = round.(x_iterativo, digits = n)
+            x_aproximado = round.(x_iterativo, digits = digitos)
             println("Iteração concluida em $iteracao passos!\n")
             println("A solução do sistema é: $x_aproximado\n")
             loop = false
@@ -730,7 +736,7 @@ function gauss(A, b, x, tol, n, limite)
 
         elseif iteracao == limite
 
-            x_aproximado = round.(x_iterativo, digits = n)
+            x_aproximado = round.(x_iterativo, digits = digitos)
             println("Iteração concluida em $iteracao passos!\n")
             println("A solução do sistema é: $x_aproximado\n")
             loop = false
