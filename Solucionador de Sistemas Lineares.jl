@@ -20,24 +20,6 @@ function help()
     println("\nfunções existentes: sts(), sti(), lu(), chol(), jacobi(), gauss()\ndigite \"?\" e a função sem/com o parênteses para obter mais informações.")
 end
 
-function criterios(A, b, x, n) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
-
-    ismatrizquadrada(A)
-
-    isvetorcoluna(b)
-
-    coluna = size(x, 2)
-
-    if coluna != 1
-        error("\no vetor chute inicial não é um vetor coluna!")
-    end
-    
-    if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool # VERIFICA SE É UM NÚMERO >= 1 OU NÃO.
-        error("\no valor de n tem que ser um número maior ou igual a 1.")
-    end
-
-end
-
 function ismatrizquadrada(A) # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
 
     linha = size(A, 1)
@@ -58,6 +40,30 @@ function isvetorcoluna(b) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS INDEPEND
     end
 
 end
+
+function criterios(A, b, x, n, limite) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
+
+    ismatrizquadrada(A)
+
+    isvetorcoluna(b)
+
+    coluna = size(x, 2)
+
+    if coluna != 1
+        error("\no vetor chute inicial não é um vetor coluna!")
+    end
+    
+    if n < 1 || typeof(n) == Char || typeof(n) == String || typeof(n) == Bool # VERIFICA SE É UM NÚMERO >= 1 OU NÃO.
+        error("\no valor de n tem que ser um número maior ou igual a 1.")
+    end
+
+    if limite < 0
+        error("o limite deve ser um número positivo ou nulo.")
+    end
+
+end
+
+
 
 # ------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES INFERIORES -------------------
 """
@@ -254,7 +260,7 @@ function lu(A) # função responsável por verificar se é possivel decompor a m
 
     if isapprox(norm(A - (produto_lu)), 0) == false # será se é uma boa comparação?
 
-        erro_rel = norm(A - (produto_lu))/norm(matriz) # a norma padrão da julia é a norm p = 2 que é igual a norma encontrada em bibliografias de álgebra linear. A norma de Frobenius.
+        erro_rel = norm(A - (produto_lu))/norm(A) # a norma padrão da julia é a norm p = 2 que é igual a norma encontrada em bibliografias de álgebra linear. A norma de Frobenius.
         println("O resultado do produto LU foi aproximado por um erro relativo de: $erro_rel\n")
 
     end
@@ -485,13 +491,14 @@ end
 # CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
 """
 
-jacobi(A, b, x, tol, n). 
+jacobi(A, b, x, tol, n, limite). 
 
 "A" É A MATRIZ QUADRADA DOS COEFICIENTES.
 "b" É O VETOR DOS TERMOS INDEPENDENTES.
 "x" É O VETOR SOLUÇÃO CHUTE INICIAL.
 "tol" É A TOLERÂNCIA FIXA.
 "n" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
+"limite" É O NÚMERO LIMITE DE ITERAÇÕES A SER REALIZADA. CASO limite = 0 SERÁ FEITO ITERAÇÕES ATÉ PASSAR TOLERÂNCIA FIXA.
 
 ESSA FUNÇÃO VAI CALCULAR UMA SOLUÇÃO APROXIMADA PARA O SISTEMA "Ax = b" BASEADO NOS ITENS INSERIDOS NA FUNÇÃO UTILIZANDO O MÉTODO ITERATIVO DE JACOBI.
 É FEITO A VERIFICAÇÃO DA MATRIZ SER DIAGONALMENTE DOMINANTE OU NÃO VIA A NORMA COLUNA.
@@ -501,9 +508,9 @@ EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0], tol = 0.01 e n = 2
 O RESULTADO VAI SER => [0.3984375, 1.1953125].
 QUE É PRÓXIMO DA SOLUÇÃO EXATA DO SISTEMA ==> [0.4, 1.2]
 """
-function jacobi(A, b, x, tol, n)
+function jacobi(A, b, x, tol, n, limite::Int64)
 
-    criterios(A, b, x, n) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
+    criterios(A, b, x, n, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
     tamanho = size(A, 1) # OBTER O TAMANHO DA MATRIZ A.
 
@@ -569,22 +576,28 @@ function jacobi(A, b, x, tol, n)
         
         erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
-        if x_iterativo == NaN # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
+        if isnan(x_iterativo[1]) == true # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
 
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
 
-        elseif erro_relativo < tol # SE O ERRO RELATIVO É MENOR QUE A TOLERANCIA, OBTEMOS A SOLUÇÃO APROXIMADA.
+        elseif erro_relativo < tol && limite == 0 # SE O ERRO RELATIVO É MENOR QUE A TOLERANCIA, OBTEMOS A SOLUÇÃO APROXIMADA.
 
             loop = false
-        else 
-            x = x_iterativo # MUDANÇA DE "x" PARA RECEBER O RESULTADO E CONTINUAR A PRÓXIMA ITERAÇÃO.
+            
+        elseif iteracao == limite # CASO O USUÁRIO DESEJA APENAS FOCAR NO NÚMERO DE ITERAÇÕES.
+
+            loop = false
+
+        else
+            x .= x_iterativo # MUDANÇA DE "x" PARA RECEBER O RESULTADO E CONTINUAR A PRÓXIMA ITERAÇÃO.
         end
              
     end
 
+    
     x_aproximado = round.(x_iterativo, digits = n)
-
     println("Iteração concluida! n° de iterações: $iteracao")
+
     return x_aproximado
 
 end
@@ -594,13 +607,15 @@ end
 # ---------------- FUNÇÃO: MÉTODO ITERATIVO DE GAUSS-SEIDEL ----------------------
 """
 
-gauss(A, b, x, tol).
+gauss(A, b, x, tol, n, limite).
 
 "A" É A MATRIZ DOS COEFICIENTES DO SISTEMA LINEAR.
 "b" É O VETOR DOS TERMOS INDEPENDENTES.
 "x" É O VETOR CHUTE INICIAL.
 "tol" É A TOLERÂNCIA FIXA.
 "n" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
+"limite" É O NÚMERO LIMITE DE ITERAÇÕES A SER REALIZADA. 
+CASO "limite = 0" SERÁ FEITO ITERAÇÕES ATÉ PASSAR TOLERÂNCIA FIXA.
 
 A FUNÇÃO VAI CALCULAR UMA APROXIMAÇÃO PARA A SOLUÇÃO DO SISTEMA LINEAR PELO
 MÉTODO ITERATIVO DE GAUSS-SIEDEL. UTILIZA-SE O CRITÉRIO DE SASSENFELD.
@@ -615,9 +630,9 @@ A solução do sistema é: [1, 2, 0]
 
 """
 
-function gauss(A, b, x, tol, n)
+function gauss(A, b, x, tol, n, limite)
 
-    criterios(A, b, x, n) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
+    criterios(A, b, x, n, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
     x = Vector{Float64}(x) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
 
@@ -629,7 +644,7 @@ function gauss(A, b, x, tol, n)
 
     loop = true # PARA CONTINUAR O MÉTODO ITERATIVO.
 
-    iteracao = 0 # PARA CONTABILIZAR AS ITERAÇÕES
+    iteracao = 0 # PARA CONTABILIZAR AS ITERAÇÕES.
 
     # INICIAREMOS AQUI O CÁLCULO DO CRITÉRIO DE SASSENFIELD.
 
@@ -698,11 +713,22 @@ function gauss(A, b, x, tol, n)
         # UMA MOTIVAÇÃO PARA O ESTUDO DE MÉTODOS DE PRECONDICIONAMENTO DE MATRIZES!
         # OBSERVAÇÃO: TESTE PARA MATRIZES DE DIMENSÃO MAIOR E VERIFIQUE QUE O CRITÉRIO NÃO É SATISFEITO FACILMENTE, NISSO O VETOR "x_iterativo" EXPLODE PARA +∞ ou -∞
 
-        if x_iterativo == NaN
+        if isnan(x_iterativo[1]) == true
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
         end
 
-        if erro_relativo < tol
+        println(iteracao)
+
+        if erro_relativo < tol && limite == 0
+
+            println(erro_relativo, tol)
+            x_aproximado = round.(x_iterativo, digits = n)
+            println("Iteração concluida em $iteracao passos!\n")
+            println("A solução do sistema é: $x_aproximado\n")
+            loop = false
+            return x_aproximado
+
+        elseif iteracao == limite
 
             x_aproximado = round.(x_iterativo, digits = n)
             println("Iteração concluida em $iteracao passos!\n")
