@@ -45,11 +45,7 @@ function criterios(A, b, x, digitos, limite) # VERIFICA MAIS CONDIÇÕES PARA OS
 
     isvetorcoluna(b)
 
-    coluna = size(x, 2)
-
-    if coluna != 1
-        error("\no vetor chute inicial não é um vetor coluna!")
-    end
+    isvetorcoluna(x)
     
     if digitos < 1 || typeof(digitos) == Char || typeof(digitos) == String || typeof(digitos) == Bool # VERIFICA SE É UM NÚMERO >= 1 OU NÃO.
         error("\no valor de n tem que ser um número maior ou igual a 1.")
@@ -583,7 +579,7 @@ function jacobi(A, b, x, tol, digitos, limite::Int64)
         
         erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
-        if isany(isnan, x_iterativo) == true # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
+        if any(isnan, x_iterativo) == true # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
 
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
 
@@ -719,7 +715,7 @@ function gauss(A, b, x, tol, digitos, limite)
         # UMA MOTIVAÇÃO PARA O ESTUDO DE MÉTODOS DE PRECONDICIONAMENTO DE MATRIZES!
         # OBSERVAÇÃO: TESTE PARA MATRIZES DE DIMENSÃO MAIOR E VERIFIQUE QUE O CRITÉRIO NÃO É SATISFEITO FACILMENTE, NISSO O VETOR "x_iterativo" EXPLODE PARA +∞ ou -∞
 
-        if isany(isnan, x_iterativo) == true
+        if any(isnan, x_iterativo) == true
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
         end
 
