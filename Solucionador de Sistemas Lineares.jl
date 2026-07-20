@@ -541,7 +541,7 @@ function jacobi(A, b, x, tol, digitos, limite::Int64)
 
             end
 
-            if abs(A[i,i]) < abs(soma_1) # VERIFICA SE O TERMO DA DIAGONAL PRINCIPAL É MENOR QUE A SOMA DOS OUTROS TERMOS DA MESMA LINHA.
+            if abs(A[i,i]) <= abs(soma_1) # VERIFICA SE O TERMO DA DIAGONAL PRINCIPAL É MENOR QUE A SOMA DOS OUTROS TERMOS DA MESMA LINHA. ESTRITAMENTE DIAGONALMENTE DOMINANTE.
 
                 @warn "A matriz \"A\" não é diagonalmente dominante. Portanto, a convergência pode não ocorrer!"
 
