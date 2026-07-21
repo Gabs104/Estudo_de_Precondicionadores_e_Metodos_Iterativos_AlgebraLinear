@@ -308,13 +308,15 @@ end
 # ---------------- FUNÇÃO: DECOMPOR A MATRIZ EM UM PRODUTO R^T * R (MÉTODO DE CHOLESKY) -----------------
 """
 
-`chol(A). ONDE A É UMA MATRIZ SIMÉTRICA DEFINIDA POSITIVA DE ORDEM n x n.`
+`chol(A).
+ 
+`"A::Matrix"` É UMA MATRIZ SIMÉTRICA DEFINIDA POSITIVA DE ORDEM n x n.
 
-A FUNÇÃO VAI DECOMPOR A MATRIZ A NO PRODUTO R^T * R VIA MÉTODO DE CHOLESKY.
+A FUNÇÃO VAI DECOMPOR A MATRIZ A NO PRODUTO `"R^T * R"` VIA MÉTODO DE CHOLESKY.
 
-A MATRIZ "R^T" É A MATRIZ TRANSPOSTA DE "R" E "R" É UMA MATRIZ TRIANGULAR SUPERIOR.
+A MATRIZ "R^T" É A MATRIZ TRANSPOSTA DE `"R"` E `"R"` É UMA MATRIZ TRIANGULAR SUPERIOR.
 
-# EX: A = [5 2; 2 1]
+# EX: `A = [5 2; 2 1]`
 
 # chol(A) ==> `R = [2.23607 0.89443; 0 0.44721] e R^T = [2.23607 0; 0.89443 0.44721]`
 
@@ -767,11 +769,18 @@ ESSA FUNÇÃO NÃO CONTÉM UM MÉTODO DE PRE-CONDICIONAMENTO EMBUTIDO.
 """
 function gradconj(A, b, chute_inicial, tol, digitos)
 
+    x .= chute_inicial  
+
     # VERIFICAÇÃO DAS ENTRADAS.
-    
+
     ismatrizquadrada(A)
     isvetorcoluna(x)
     isvetorcoluna(b)
+
+    # ANTES DE USAR O MÉTODO ITERATIVO DOS GRADIENTES CONJUGADOS, PRECISAMOS VERIFICAR SE>
+    # "A" É UMA MATRIZ DEFINIDA POSITIVA.
+
+    chol(A) # BASTA USARMOS A FUNÇÃO chol(A). SE ISSO FOR REALIZADO COM SUCESSO A MATRIZ "A" É SIMÉTRICA E DEFINIDA POSITIVA.
 
     tamanho = size(A, 1)
 
@@ -784,8 +793,6 @@ function gradconj(A, b, chute_inicial, tol, digitos)
     r = zeros(tamanho)
     v = zeros(tamanho)
 
-    x .= chute_inicial  
-
     r .= b - A*x
     v .= r
 
@@ -793,12 +800,7 @@ function gradconj(A, b, chute_inicial, tol, digitos)
     r_iterativo = zeros(tamanho)
     v_iterativo = zeros(tamanho)
 
-    # ANTES DE USAR O MÉTODO ITERATIVO DOS GRADIENTES CONJUGADOS, PRECISAMOS VERIFICAR SE>
-    # "A" É UMA MATRIZ DEFINIDA POSITIVA.
-
     # SE A MATRIZ "A" INSERIDA É SIMÉTRIA E DEFINIDA POSITIVAMENTE, ENTÃO ELA ADMITE UMA DECOMPOSIÇÃO CHOLESKY.
-
-    chol(A) # BASTA USARMOS A FUNÇÃO chol(A). SE ISSO FOR REALIZADO COM SUCESSO A MATRIZ "A" É SIMÉTRICA E DEFINIDA POSITIVA.
 
     # APÓS ESSAS VERIFICAÇÕES, COMEÇAMOS O AQUI O MÉTODO DE GRADIENTES CONJUGADOS
 
