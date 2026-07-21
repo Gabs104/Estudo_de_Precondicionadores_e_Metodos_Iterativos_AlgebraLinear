@@ -7,7 +7,6 @@
 
 # SUJEITO A MUDANÇAS.
 
-using LinearAlgebra # para importar os comandos, funções de algebra linear.
 using Random # IMPORTAR PARA USAR A BIBLIOTECA DE GERAÇÃO ALEATÓRIA.
 
 # -------- FIM DAS IMPORTAÇÕES DE BIBLIOTECAS ----------
@@ -33,7 +32,7 @@ end
 
 function isvetorcoluna(b) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS INDEPENDENTES É COLUNA.
 
-    if ndims(b) != 1
+    if LinearAlgebra.ndims(b) != 1
         error("\no vetor dos termos independentes não é um vetor coluna!")
     end
 
@@ -62,21 +61,26 @@ end
 # ------------- ALGORITMO PARA RESOLVER SISTEMAS TRIANGULARES INFERIORES -------------------
 """
 
-sti(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR INFERIOR DOS COEFICIENTES DE ORDEM n x n E "b" É O VETOR DOS TERMOS INDEPENDENTES DE ORDEM n x 1.
+`sti(A, b).` 
+
+`"A:Matrix"` É UMA MATRIZ TRIANGULAR INFERIOR DOS COEFICIENTES DE ORDEM n x n.
+
+`"b::Vector"` É O VETOR DOS TERMOS INDEPENDENTES DE ORDEM n x 1.
 
 ESSA FUNÇÃO VAI RESOVER UM SISTEMA LINEAR Ax = b USANDO UM SISTEMA TRIANGULAR INFERIOR.
 
-Ex: A = [1 0 0; 2 3 0; 1 4 5] e b = [1, 3, 6]
+# EX: ```A = [1 0 0; 2 3 0; 1 4 5] e b = [1, 3, 6]```
 
-sti(A, b) = [1, 0.3333333..., 0.73333333...]
+```sti(A, b) = [1, 0.3333333..., 0.73333333...]```
 
-PARA TIRAR A PROVA REAL:
+# PARA TIRAR A PROVA REAL:
 
-julia) x = sti(A, b)
+```julia) x = sti(A, b)```
 
-julia) A*x
+```julia) A*x```
 
-O RESULTADO SERÁ O VETOR b.
+```O RESULTADO SERÁ O VETOR b.```
+
 """
 function sti(A, b) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
@@ -114,23 +118,26 @@ end
 
 """
 
-sts(A, b). ONDE "A" É UMA MATRIZ TRIANGULAR SUPERIOR DOS COEFICIENTES DE ORDEM n x n. 
+`sts(A, b).`
 
-"b" É O VETOR DOS TERMOS INDEPENDENTES.
+`"A::Matrix"` É UMA MATRIZ TRIANGULAR SUPERIOR DOS COEFICIENTES DE ORDEM n x n. 
 
-ESSA FUNÇÃO VAI RESOLVER O SISTEMA LINEAR Ax = b VIA SISTEMA TRIANGULAR SUPERIOR.
+`"b::Vector"` É O VETOR DOS TERMOS INDEPENDENTES.
 
-Ex: A = [1 3 4; 0 4 3; 0 0 -1] e b = [3, -2, 1]
+ESSA FUNÇÃO VAI RESOLVER O SISTEMA LINEAR `Ax = b` VIA SISTEMA TRIANGULAR SUPERIOR.
 
-sts(A, b) = [6.25, 0.25, -1.0]
+# EX: ```A = [1 3 4; 0 4 3; 0 0 -1] e b = [3, -2, 1]```
 
-PARA TIRAR A PROVA REAL:
+```sts(A, b) = [6.25, 0.25, -1.0]```
 
-julia) x = sts(A, b)
+```PARA TIRAR A PROVA REAL:```
 
-julia) A*x
+```julia) x = sts(A, b)```
 
-O RESULTADO SERÁ O VETOR b.
+```julia) A*x```
+
+# O RESULTADO SERÁ O VETOR "b".
+
 """
 function sts(A, b) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
@@ -165,25 +172,16 @@ end
 # ------------ ALGORTIMO DA DECOMPOSIÇÃO LU COM USO DO TEOREMA DA DECOMPOSIÇÃO LU.
 """
 
-lu(A). ONDE "A" É UMA MATRIZ DE ORDEM n x n.
+lu(A). 
+
+`"A::Matrix"` É UMA MATRIZ DE ORDEM n x n.
 
 ESSA FUNÇÃO VAI DECOMPOR A MATRIZ "A" NO PRODUTO LU ONDE "L" É UMA MATRIZ TRIANGULAR INFERIOR E "U" É UMA MATRIZ TRIANGULAR SUPERIOR.
 
-EX: A = [2 3 4; 2 -1 1; 2 2 6]
+# EX: A = [2 3 4; 2 -1 1; 2 2 6]
 
-lu(A) ==> L = [1 0 0; 1 1 0; 1 0.25 1] e U = [2 3 4; 0 -4 -3; 0 0 2.75]
+lu(A) ==> `L = [1 0 0; 1 1 0; 1 0.25 1]` e `U = [2 3 4; 0 -4 -3; 0 0 2.75]`
 
-PARA TIRAR A PROVA REAL:
-
-julia) L, U = lu(A)
-
-julia) L*U == A
-
-OU
-
-julia) isapprox(L*U, A)
-
-O RESULTADO FINAL SERÁ UM VALOR BOOLEANO "true" OU "false".
 """
 function lu(A) # função responsável por verificar se é possivel decompor a matriz de coeficientes A em duas matrizes LU. Se possível, vai decompor a matriz A e mostrar as duas matrizes L e U obtidas.
 
@@ -194,8 +192,10 @@ function lu(A) # função responsável por verificar se é possivel decompor a m
     ismatrizquadrada(A) # VERIFICA SE MATRIZ É QUADRADA OU NÃO.
 
     tamanho = size(A, 1)
+
     L = Matrix{Float64}(I, tamanho, tamanho)
     U = zeros(Float64, tamanho, tamanho)
+
     println("Iniciando Decomposição...\n")
 
     # ------------- ALGORITMO DE DECOMPOSIÇÃO LU -------------.
@@ -204,25 +204,17 @@ function lu(A) # função responsável por verificar se é possivel decompor a m
         
         for j in 1:tamanho 
 
-            if i <= j && i == 1 # o caso em que i <= j e i = 1 que é quando os coeficientes u_1j é igual a a_1j.
-
-                U[i, j] = A[i, j]
-
-                if U[i,i] == 0 
-                    error("o elemento u_$i$i é nulo. Pelo Teorema da Decomposição LU, essa matriz não admite decomposição.")
-                end
-
-            elseif i <= j # segue para os próximos casos em que dependemos do valor l_ij. O algoritmo é igual a fórmula matemática feita.
+            if i <= j # segue para os próximos casos em que dependemos do valor l_ij. O algoritmo é igual a fórmula matemática feita.
 
                 somatorio_u = 0.0 # definimos a somatorio_u aqui para resetar toda vez que começar uma nova conta na próxima linha.
 
-                for k in 1:i-1
+                for k in 1:i-1 # 
 
                     somatorio_u += L[i,k]*U[k,j]
 
                 end
 
-                U[i, j] = A[i, j] - somatorio_u
+                U[i, j] = A[i, j] - somatorio_u 
 
                 if U[i,i] == 0
                     error("o elemento u_$i$i é nulo. Pelo Teorema da Decomposição LU, essa matriz não admite decomposição.")
@@ -232,13 +224,13 @@ function lu(A) # função responsável por verificar se é possivel decompor a m
 
                 somatorio_l = 0.0
 
-                for k in 1:j-1
+                for k in 1:j-1 
 
                     somatorio_l += L[i,k]*U[k,j]
 
                 end
 
-                L[i,j] = (A[i, j] - somatorio_l)/U[j, j]
+                L[i,j] = (A[i, j] - somatorio_l)/U[j, j] 
 
             end
         end
@@ -252,9 +244,9 @@ function lu(A) # função responsável por verificar se é possivel decompor a m
 
     produto_lu = L*U # salvamos o produto LU.
 
-    if isapprox(norm(A - (produto_lu)), 0) == false # será se é uma boa comparação?
+    if isapprox(LinearAlgebra.norm(A - (produto_lu)), 0) == false 
 
-        erro_rel = norm(A - (produto_lu))/norm(A) # a norma padrão da julia é a norm p = 2 que é igual a norma encontrada em bibliografias de álgebra linear. A norma de Frobenius.
+        erro_rel = LinearAlgebra.norm(A - (produto_lu))/LinearAlgebra.norm(A) # a norma padrão da julia é a norm p = 2 que é igual a norma encontrada em bibliografias de álgebra linear. A norma de Frobenius.
         println("O resultado do produto LU foi aproximado por um erro relativo de: $erro_rel\n")
 
     end
@@ -296,7 +288,7 @@ function resolver_lu(L, U, b)
     # ATENÇÃO !
     # como estamos usando o determinante, acredito que seja mais eficiente usar apenas um checador se os elementos da diagonal principal não são nulos!
 
-    if det(U) == 0 
+    if LinearAlgebra.det(U) == 0 
         error("Como o determinante da matriz U é nula, não podemos realizar U^(-1) * y.\n Porntanto, impossível de resolver.")
     end
 
@@ -304,8 +296,8 @@ function resolver_lu(L, U, b)
     # 
     # --------------- ALGORITMO PARA RESOLVER SISTEMA LINEAR VIA LU. UTILIZAMOS AS FUNÇÕES STI() E STS() JÁ CRIADAS PARA APROVEITAR ------------------
     
-    y = sti(LowerTriangular(L), b) # obtemos o vetor y para usar depois na função sts()
-    vetor_sol = sts(UpperTriangular(U), y) # aqui obtemos o vetor solução do sistema!
+    y = sti(LinearAlgebra.LowerTriangular(L), b) # obtemos o vetor y para usar depois na função sts()
+    vetor_sol = sts(LinearAlgebra.UpperTriangular(U), y) # aqui obtemos o vetor solução do sistema!
 
     println("O vetor solução é: $vetor_sol")
 
@@ -316,27 +308,16 @@ end
 # ---------------- FUNÇÃO: DECOMPOR A MATRIZ EM UM PRODUTO R^T * R (MÉTODO DE CHOLESKY) -----------------
 """
 
-chol(A). ONDE A É UMA MATRIZ SIMÉTRICA DEFINIDA POSITIVA DE ORDEM n x n.
+`chol(A). ONDE A É UMA MATRIZ SIMÉTRICA DEFINIDA POSITIVA DE ORDEM n x n.`
 
 A FUNÇÃO VAI DECOMPOR A MATRIZ A NO PRODUTO R^T * R VIA MÉTODO DE CHOLESKY.
 
 A MATRIZ "R^T" É A MATRIZ TRANSPOSTA DE "R" E "R" É UMA MATRIZ TRIANGULAR SUPERIOR.
 
-EX: A = [5 2; 2 1]
+# EX: A = [5 2; 2 1]
 
-chol(A) ==> R = [2.23607 0.89443; 0 0.44721] e R^T = [2.23607 0; 0.89443 0.44721]
+# chol(A) ==> `R = [2.23607 0.89443; 0 0.44721] e R^T = [2.23607 0; 0.89443 0.44721]`
 
-PARA TIRAR A PROVA REAL:
-
-julia) R, T = chol(A)
-
-julia) T * R == A
-
-OU
-
-julia) isapprox(T*R, A)
-
-O VALOR FINAL SERÁ UM VALOR BOOLEANO "true" OU "false".
 """
 function chol(A)
 
@@ -346,9 +327,7 @@ function chol(A)
 
     # PRIMEIRO CHECAMOS SE A MATRIZ INSERIDA É SIMÉTRICA OU NÃO. BASTA VERIFICAR SE A = A^T
 
-    matriz_t = transpose(A)
-
-    if isapprox(matriz_t, A) == false
+    if LinearAlgebra.issymmetric(A) == false
 
         error("A matriz inserida não é simétrica! A ≠ A^T.")
 
@@ -368,7 +347,7 @@ function chol(A)
 
             if j == i && i == 1 # CASO i = j E i = 1, CASO EM QUE ESTAMOS CALCULANDO O ELEMENTO r_11.
 
-                if A[i, i] < 0 || A[i, i] == 0 
+                if A[i, i] <= 0  
 
                     r = A[i, i]
 
@@ -392,7 +371,7 @@ function chol(A)
 
                 result = A[i, i] - somatorio_1
 
-                if result < 0 || result == 0
+                if result <= 0 
 
                     error("O termo r_$i$i = $result é não positivo. Portanto, não é possível fazer a decomposição via cholesky.")
 
@@ -420,7 +399,7 @@ function chol(A)
 
     end
 
-    R_transposta = transpose(R)
+    R_transposta = LinearAlgebra.transpose(R)
 
     println("-------------- Decomposição via Cholesky finalizada! ---------------\n")
 
@@ -470,7 +449,7 @@ function testar_lu()
 
         x = resolver_lu(L, U, b)
 
-        erro = norm(b - ((L*U)*x))  # é calculado a diferença entre o vetor b e o vetor (LU)x que é justamente o b. Isso é feito em norma!
+        erro = LinearAlgebra.norm(b - ((L*U)*x))  # é calculado a diferença entre o vetor b e o vetor (LU)x que é justamente o b. Isso é feito em norma!
 
         print("o erro na $loop ° iteração foi de: $erro\n")
         loop += 1
@@ -488,30 +467,32 @@ end
 # CRIAR UMA FUNÇÃO QUE VERIFICA SE A MATRIZ "A" INSERIDA É QUADRADA E SE O VETOR "b" É UM VETOR COLUNA?
 """
 
-jacobi(A, b, x, tol, digitos, lim). 
+`jacobi(A, b, x, tol, digitos, lim).` 
 
-ESSA FUNÇÃO VAI CALCULAR UMA SOLUÇÃO APROXIMADA PARA O SISTEMA "Ax = b" BASEADO NOS ITENS INSERIDOS NA FUNÇÃO UTILIZANDO O MÉTODO ITERATIVO DE JACOBI.
+# ESSA FUNÇÃO VAI CALCULAR UMA SOLUÇÃO APROXIMADA PARA O SISTEMA "Ax = b" BASEADO NOS ITENS INSERIDOS NA FUNÇÃO UTILIZANDO O MÉTODO ITERATIVO DE JACOBI.
 
-"A" É A MATRIZ QUADRADA DOS COEFICIENTES.
+`"A::Matrix"` É A MATRIZ QUADRADA DOS COEFICIENTES.
 
-"b" É O VETOR DOS TERMOS INDEPENDENTES.
+`"b::Vector"` É O VETOR DOS TERMOS INDEPENDENTES.
 
-"x" É O VETOR SOLUÇÃO CHUTE INICIAL.
+`"chute_inicial"` É O VETOR SOLUÇÃO CHUTE INICIAL.
 
-"tol" É A TOLERÂNCIA FIXA.
+`"tol"` É A TOLERÂNCIA FIXA.
 
-"digitos" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
+`"digitos"` É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
 
-"lim" É O NÚMERO ITERAÇÕES A SER REALIZADA. CASO limite = 0 SERÁ FEITO ITERAÇÕES ATÉ PASSAR TOLERÂNCIA FIXA.
+`"lim"` É O NÚMERO ITERAÇÕES A SER REALIZADA. CASO limite = 0 SERÁ FEITO ITERAÇÕES ATÉ PASSAR TOLERÂNCIA FIXA.
 
 É FEITO A VERIFICAÇÃO DA MATRIZ SER DIAGONALMENTE DOMINANTE OU NÃO VIA A NORMA COLUNA.
 
-EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0], tol = 0.01 e digitos = 2, limite = 0
+# EX: ```A = [2 1; 1 -2], b = [2, -2], x = [0, 0], tol = 0.01 e digitos = 2, limite = 0```
 
 O RESULTADO VAI SER => [0.4, 1.2].
 
 """
-function jacobi(A, b, x, tol, digitos, limite)
+function jacobi(A, b, chute_inicial, tol, digitos, limite)
+
+    x .= Vector{Float64}(chute_inicial)
 
     criterios(A, b, x, digitos, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
@@ -588,7 +569,7 @@ function jacobi(A, b, x, tol, digitos, limite)
 
         x_iterativo = H * x + g
         
-        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
+        erro_relativo = LinearAlgebra.norm(x_iterativo - x)/LinearAlgebra.norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
         if any(isnan, x_iterativo) # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
 
@@ -621,33 +602,40 @@ end
 # ---------------- FUNÇÃO: MÉTODO ITERATIVO DE GAUSS-SEIDEL ----------------------
 """
 
-gauss(A, b, x, tol, n, limite).
+`gauss(A, b, chute_inicial, tol, digitos, limite).`
 
-"A" É A MATRIZ DOS COEFICIENTES DO SISTEMA LINEAR.
-"b" É O VETOR DOS TERMOS INDEPENDENTES.
-"x" É O VETOR CHUTE INICIAL.
-"tol" É A TOLERÂNCIA FIXA.
-"n" É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
-"limite" É O NÚMERO LIMITE DE ITERAÇÕES A SER REALIZADA. 
-CASO "limite = 0" SERÁ FEITO ITERAÇÕES ATÉ PASSAR TOLERÂNCIA FIXA.
+`- "A::Matrix"` É A MATRIZ DOS COEFICIENTES DO SISTEMA LINEAR.
+
+`- "b::Vector"` É O VETOR DOS TERMOS INDEPENDENTES.
+
+`- "chute_inicial::Vector"` É O VETOR CHUTE INICIAL.
+
+`- "tol::Int64"` É A TOLERÂNCIA FIXA.
+
+`- "digitos::Int64"` É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
+
+`- "limite::Int64"` É O NÚMERO LIMITE DE ITERAÇÕES A SER REALIZADA. 
+
+CASO `- "limite = 0"` SERÁ FEITO ITERAÇÕES ATÉ PASSAR TOLERÂNCIA FIXA.
 
 A FUNÇÃO VAI CALCULAR UMA APROXIMAÇÃO PARA A SOLUÇÃO DO SISTEMA LINEAR PELO
 MÉTODO ITERATIVO DE GAUSS-SIEDEL. UTILIZA-SE O CRITÉRIO DE SASSENFELD.
 É POSSÍVEL ARMAZENAR O VETOR SOLUÇÃO.
 
-EX: A = [10 2 1; 1 5 1; 2 3 10], b = [14, 11, 8], x = [0, 0, 0], ϵ = 0.01 e n = 1.
+# EX: ```A = [10 2 1; 1 5 1; 2 3 10], b = [14, 11, 8], x = [0, 0, 0], ϵ = 0.01 e n = 1.``` 
+ 
+`julia> gauss(A, b, x, tol)`
 
-gauss(A, b, x, tol)
+`julia> Iteração concluida em 4 passos!`
 
-Iteração concluida em 4 passos!
-A solução do sistema é: [1, 2, 0]
+`julia> A solução do sistema é: [1, 2, 0]`
 
 """
-function gauss(A, b, x, tol, digitos, limite)
+function gauss(A, b, chute_inicial, tol, digitos, limite)
+
+    x .= Vector{Float64}(chute_inicial) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
 
     criterios(A, b, x, digitos, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
-
-    x = Vector{Float64}(x) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
 
     tamanho = size(A, 1) # DIMENSÃO DA MATRIZ INSERIDA
 
@@ -719,7 +707,7 @@ function gauss(A, b, x, tol, digitos, limite)
 
         end
         
-        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO.
+        erro_relativo = LinearAlgebra.norm(x_iterativo - x)/LinearAlgebra.norm(x_iterativo) # CALCULA O ERRO RELATIVO.
 
         # CASO A MATRIZ NÃO ATENDER O CRITÉRIO DE SASSENFELD, PODE OCORRER DE A ITERAÇÃO NÃO CONVERGIR PARA A SOLUÇÃO DO SISTEMA.
         # NESSE CASO, SERA ADICIONADO UM CONDICIONAL IF PARA CANCELAR A ITERAÇÃO E NÃO FICAR RODANDO O PROGRAMA INFINITAMENTE.
@@ -762,8 +750,90 @@ end
 # ------------ FUNÇÃO: MÉTODO DOS GRADIENTES CONJUGADOS ---------------
 
 """
+`gradconj(A, b, chute_inicial, tol, digitos).`
+
+`- "A::Matrix"` É A MATRIZ DOS COEFICIENTES DO SISTEMA LINEAR.
+
+`- "b::Vector"` É O VETOR DOS TERMOS INDEPENDENTES.
+
+`- "chute_inicial::Vector"` É O VETOR CHUTE INICIAL.
+
+`- "tol:Int64"` É A TOLERÂNCIA FIXA.
+
+`- "digitos:Int64"` É QUANTIDADE DE CASAS DECIMAIS A SE CONSIDERAR DO RESULTADO FINAL DA ITERAÇÃO.
+
+ESSA FUNÇÃO NÃO CONTÉM UM MÉTODO DE PRE-CONDICIONAMENTO EMBUTIDO.
 
 """
-function GC()
+function gradconj(A, b, chute_inicial, tol, digitos)
 
+    # VERIFICAÇÃO DAS ENTRADAS.
+    
+    ismatrizquadrada(A)
+    isvetorcoluna(x)
+    isvetorcoluna(b)
+
+    tamanho = size(A, 1)
+
+    iteracao = 0
+
+    loop = true
+
+    # PRIMEIRO CASO DA ITERAÇÃO ONDE CALCULAMOS "r" E DIZEMOS QUE "v" É IGUAL A "r".
+
+    r = zeros(tamanho)
+    v = zeros(tamanho)
+
+    x .= chute_inicial  
+
+    r .= b - A*x
+    v .= r
+
+    x_iterativo = zeros(tamanho)
+    r_iterativo = zeros(tamanho)
+    v_iterativo = zeros(tamanho)
+
+    # ANTES DE USAR O MÉTODO ITERATIVO DOS GRADIENTES CONJUGADOS, PRECISAMOS VERIFICAR SE>
+    # "A" É UMA MATRIZ DEFINIDA POSITIVA.
+
+    # SE A MATRIZ "A" INSERIDA É SIMÉTRIA E DEFINIDA POSITIVAMENTE, ENTÃO ELA ADMITE UMA DECOMPOSIÇÃO CHOLESKY.
+
+    chol(A) # BASTA USARMOS A FUNÇÃO chol(A). SE ISSO FOR REALIZADO COM SUCESSO A MATRIZ "A" É SIMÉTRICA E DEFINIDA POSITIVA.
+
+    # APÓS ESSAS VERIFICAÇÕES, COMEÇAMOS O AQUI O MÉTODO DE GRADIENTES CONJUGADOS
+
+    while loop == true
+        
+        iteracao += 1
+
+        t = dot(r, r)/dot(v, A*v) # CÁLCULO DO COEFICIENTE "t".
+
+        x_iterativo .= x + t*v # CÁLCULO DA PRÓXIMA APROXIMAÇÃO.
+
+        r_iterativo .= r - t*(A*v) # CÁLCULO DO NOVO VETOR RESÍDUO.
+
+        s = dot(r_iterativo,r_iterativo)/dot(r, r) # CÁLCULO DO COEFICIENTE "s".
+
+        v_iterativo .= r_iterativo + s*v # CÁLCULO DO NOVO VETOR DIREÇÃO.
+
+        x .= x_iterativo
+        v .= v_iterativo
+
+        if LinearAlgebra.norm(r) < tol || LinearAlgebra.norm(r) == 0 # VERIFICAMOS SE ESTÁ ABAIXO DA TOLERÂNCIA FIXA OU SE A NORMA É ZERO. SE SIM, OBTEMOS A SOLUÇÃO.
+
+            println("Iteração concluida! n° de passos: $iteracao\n")
+
+            x_solução = round.(x_iterativo, digits = digitos)
+
+            loop = false
+
+            return x_solução
+
+        else
+
+            r .= r_iterativo
+
+        end
+
+    end
 end
