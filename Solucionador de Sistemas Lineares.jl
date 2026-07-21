@@ -511,7 +511,7 @@ EX: A = [2 1; 1 -2], b = [2, -2], x = [0, 0], tol = 0.01 e digitos = 2, limite =
 O RESULTADO VAI SER => [0.4, 1.2].
 
 """
-function jacobi(A, b, x, tol, digitos, limite::Int64)
+function jacobi(A, b, x, tol, digitos, limite)
 
     criterios(A, b, x, digitos, limite) # VERIFICAÇÃO DOS CRITÉRIOS PARA USAR O MÉTODO.
 
@@ -547,16 +547,20 @@ function jacobi(A, b, x, tol, digitos, limite::Int64)
 
                 @warn "A matriz \"A\" não é diagonalmente dominante. Portanto, a convergência pode não ocorrer!"
                 verificacao = false
-                sleep(1)
 
                 # SE APOS VERIFICA ISSO AQUI, SERIA BOM SE ESSA PARTE JA FOSSE PULADA PARA A ITERAÇÃO, CERTO?
-
             end
+            
 
         end
+
     end
 
-    println("A matriz \"A\" é diagonalmente dominante! Iniciando o Método de Jacobi\n")
+    if verificacao == true
+
+        println("A matriz \"A\" é diagonalmente dominante! Iniciando o Método de Jacobi\n")
+
+    end
 
     # APÓS A VERIFICAÇÃO, INICIAR O MÉTODO DE JACOBI. VAMOS CONSTRUIR A MATRIZ ITERATIVA E A MATRIZ ITERATIVA DOS TERMOS INDEPENDENTES.
 
@@ -750,5 +754,16 @@ function gauss(A, b, x, tol, digitos, limite)
         end
 
     end
+
+end
+
+# ------------- FIM DA FUNÇÃO ---------------
+
+# ------------ FUNÇÃO: MÉTODO DOS GRADIENTES CONJUGADOS ---------------
+
+"""
+
+"""
+function GC()
 
 end
