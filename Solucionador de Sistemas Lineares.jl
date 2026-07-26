@@ -573,7 +573,10 @@ function jacobi(A, b, chute_inicial, tol, digitos, limite)
         
         erro_relativo = LinearAlgebra.norm(x_iterativo - x)/LinearAlgebra.norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
-        if any(isnan, x_iterativo) # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
+        println(iteracao)
+        println(x_iterativo)
+
+        if any(isnan, x_iterativo) || iteracao >= 40000 # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
 
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
 
@@ -716,7 +719,7 @@ function gauss(A, b, chute_inicial, tol, digitos, limite)
         # UMA MOTIVAÇÃO PARA O ESTUDO DE MÉTODOS DE PRECONDICIONAMENTO DE MATRIZES!
         # OBSERVAÇÃO: TESTE PARA MATRIZES DE DIMENSÃO MAIOR E VERIFIQUE QUE O CRITÉRIO NÃO É SATISFEITO FACILMENTE, NISSO O VETOR "x_iterativo" EXPLODE PARA +∞ ou -∞
 
-        if any(isnan, x_iterativo)
+        if any(isnan, x_iterativo) || iteracao >= 40000
             error("A iteração levou $iteracao passos e divergiu da solução...\nTente precondicionar a matriz.")
         end
 
@@ -777,7 +780,7 @@ function gradconj(A, b, chute_inicial, tol, digitos)
     isvetorcoluna(x)
     isvetorcoluna(b)
 
-    # ANTES DE USAR O MÉTODO ITERATIVO DOS GRADIENTES CONJUGADOS, PRECISAMOS VERIFICAR SE>
+    # ANTES DE USAR O MÉTODO ITERATIVO DOS GRADIENTES CONJUGADOS, PRECISAMOS VERIFICAR SE >>>
     # "A" É UMA MATRIZ DEFINIDA POSITIVA.
 
     chol(A) # BASTA USARMOS A FUNÇÃO chol(A). SE ISSO FOR REALIZADO COM SUCESSO A MATRIZ "A" É SIMÉTRICA E DEFINIDA POSITIVA.
