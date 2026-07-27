@@ -271,7 +271,7 @@ resolver_lu(L, U ,b). A FUNÇÃO RESOLVE O SISTEMA LINEAR Ax = b PELO MÉTODO (L
 A FUNÇÃO UTILIZA AS FUNÇÕES sti() E sts() PARA O CÁLCULO.
 
 """
-function resolver_lu(L, U, b)
+function resolver_lu(L::Matrix, U::Matrix, b::Vector)
 
     # -------------- VERIFICAÇÕES ANTES DE INICIAR O PROCESSO DE SOLUÇÃO DE SISTEMA POR LU --------------
 
@@ -933,5 +933,9 @@ function qr(A::Matrix)
 
     println("Processo de Decomposição QR finalizado!")
     return Q, R
+
+end
+
+function gmres()
 
 end
