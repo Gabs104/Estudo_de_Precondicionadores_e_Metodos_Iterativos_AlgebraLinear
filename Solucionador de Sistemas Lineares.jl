@@ -8,6 +8,7 @@
 # SUJEITO A MUDANÇAS.
 
 using Random # IMPORTAR PARA USAR A BIBLIOTECA DE GERAÇÃO ALEATÓRIA.
+using LinearAlgebra
 
 # -------- FIM DAS IMPORTAÇÕES DE BIBLIOTECAS ----------
 """
@@ -19,7 +20,7 @@ function help()
     println("\nfunções existentes: sts(), sti(), lu(), chol(), jacobi(), gauss()\ndigite \"?\" e a função sem/com o parênteses para obter mais informações.")
 end
 
-function ismatrizquadrada(A) # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
+function ismatrizquadrada(A::Matrix) # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
 
     linha = size(A, 1)
     coluna = size(A, 2)
@@ -30,7 +31,7 @@ function ismatrizquadrada(A) # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
     
 end
 
-function isvetorcoluna(b) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS INDEPENDENTES É COLUNA.
+function isvetorcoluna(b::Vector) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS INDEPENDENTES É COLUNA.
 
     if LinearAlgebra.ndims(b) != 1
         error("\no vetor dos termos independentes não é um vetor coluna!")
@@ -38,7 +39,7 @@ function isvetorcoluna(b) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS INDEPEND
 
 end
 
-function criterios(A, b, x, digitos, limite) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
+function criterios(A::Matrix, b::Vector, x::Vector, digitos::Int, limite::Int) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
 
     ismatrizquadrada(A)
 
@@ -82,7 +83,7 @@ ESSA FUNÇÃO VAI RESOVER UM SISTEMA LINEAR Ax = b USANDO UM SISTEMA TRIANGULAR 
 ```O RESULTADO SERÁ O VETOR b.```
 
 """
-function sti(A, b) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
+function sti(A::Matrix, b::Vector) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
     ismatrizquadrada(A)  # VERIFICA SE A MATRIZ É QUADRADA.
 
@@ -139,7 +140,7 @@ ESSA FUNÇÃO VAI RESOLVER O SISTEMA LINEAR `Ax = b` VIA SISTEMA TRIANGULAR SUPE
 # O RESULTADO SERÁ O VETOR "b".
 
 """
-function sts(A, b) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
+function sts(A::Matrix, b::Vector) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
     ismatrizquadrada(A)  # VERIFICA SE A MATRIZ É QUADRADA.
 
@@ -183,7 +184,7 @@ ESSA FUNÇÃO VAI DECOMPOR A MATRIZ "A" NO PRODUTO LU ONDE "L" É UMA MATRIZ TRI
 lu(A) ==> `L = [1 0 0; 1 1 0; 1 0.25 1]` e `U = [2 3 4; 0 -4 -3; 0 0 2.75]`
 
 """
-function lu(A) # função responsável por verificar se é possivel decompor a matriz de coeficientes A em duas matrizes LU. Se possível, vai decompor a matriz A e mostrar as duas matrizes L e U obtidas.
+function lu(A::Matrix) # função responsável por verificar se é possivel decompor a matriz de coeficientes A em duas matrizes LU. Se possível, vai decompor a matriz A e mostrar as duas matrizes L e U obtidas.
 
     # criamos as variáveis tamanho, menor_principal e continuar
     # tamanho: recebe o tamanho da matriz quadrada inserida.
@@ -321,7 +322,7 @@ A MATRIZ "R^T" É A MATRIZ TRANSPOSTA DE `"R"` E `"R"` É UMA MATRIZ TRIANGULAR 
 # chol(A) ==> `R = [2.23607 0.89443; 0 0.44721] e R^T = [2.23607 0; 0.89443 0.44721]`
 
 """
-function chol(A)
+function chol(A::Matrix)
 
     ismatrizquadrada(A)
 
@@ -492,7 +493,7 @@ end
 O RESULTADO VAI SER => [0.4, 1.2].
 
 """
-function jacobi(A, b, chute_inicial, tol, digitos, limite)
+function jacobi(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::Int, limite::Int)
 
     x .= Vector{Float64}(chute_inicial)
 
@@ -636,7 +637,7 @@ MÉTODO ITERATIVO DE GAUSS-SIEDEL. UTILIZA-SE O CRITÉRIO DE SASSENFELD.
 `julia> A solução do sistema é: [1, 2, 0]`
 
 """
-function gauss(A, b, chute_inicial, tol, digitos, limite)
+function gauss(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::Int, limite::Int)
 
     x .= Vector{Float64}(chute_inicial) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
 
@@ -770,7 +771,7 @@ end
 ESSA FUNÇÃO NÃO CONTÉM UM MÉTODO DE PRE-CONDICIONAMENTO EMBUTIDO.
 
 """
-function gradconj(A, b, chute_inicial, tol, digitos)
+function gradconj(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::Int)
 
     x .= chute_inicial  
 
@@ -841,4 +842,96 @@ function gradconj(A, b, chute_inicial, tol, digitos)
         end
 
     end
+end
+
+# ------------- FIM DA FUNÇÃO ---------------------
+
+# ------------- FUNÇÃO: FATORAÇÃO QR --------------------
+"""
+qr(A).  
+
+`"A::Matrix"` É UMA MATRIZ m x n.
+
+ESTA FUNÇÃO VAI DECOMPOR A MATRIZ `"A"` EM DUAS OUTRAS MATRIZES DENOMINADAS `"Q"` E `"R"`
+
+A MATRIZ `"Q"` É FORMADA PELOS VETORES COLUNA DA MATRIZ `"A"` PORÉM, ORTONORMALIZADOS.
+
+A MATRIZ `"R"` É TRIANGULAR SUPERIOR CUJOS TERMOS SÃO `<a_j, q_k>`.
+
+A FUNÇÃO RETORNA AS MATRIZES `"Q"` E `"R"`.
+
+"""
+function qr(A::Matrix) 
+
+    # NA FATORAÇÃO QR, Q É A MATRIZ FORMADA PELOS VETORES COLUNAS DA MATRIZ A PORÉM, FORMANDO UM CONJUNTO ORTONORMALIZADO.
+    # UTILIZA-SE O PROCESSO DE ORTOGORNALIZAÇÃO DE GRAM-SCHMIDT.
+
+    # VERIFICAR SE A POSSUI TODOS OS VETORES COLUNAS L.I
+
+    linha = size(A, 1)
+    coluna = size(A, 2)
+
+    Q = zeros(linha, coluna)
+    R = zeros(coluna, coluna)
+    b = zeros(linha)
+    vetor_nulo = norm(A \ b)
+
+    if norm(vetor_nulo) != 0
+
+        error("A matriz inserida não possui os vetores colunas L.I")
+
+    end
+
+    # INICIANDO O PROCESSO DE GRAM-SCHMIDT
+
+    
+
+    for j in 1:coluna
+
+        soma = 0
+
+        if j == 1 # PRIMEIRO CASO. PARA
+
+            q = A[:, 1]
+
+            q = q/norm(q)
+
+            Q[:, 1] = q
+
+            R[j, j] = dot(A[:, j], Q[:, j])
+
+        else # PRÓXIMOS CASOS QUE SÃO ITERATIVOS.
+    
+
+            for k in 1:j-1 # CALCULANDO OS PRODUTOS INTERNOS
+
+                soma = dot(A[:, j], Q[:, k])*Q[:, k]
+
+            end
+
+            q = A[:, j] - soma # CALCULANDO O q_k vetor.
+
+            q = q/norm(q)
+
+            Q[:, j] = q
+
+            for k in 1:j # CALCULANDO OS PRODUTOS INTERNOS QUE VÃO NA MATRIZ R.
+
+                R[k, j] = dot(A[:, j], Q[:, k])
+
+                if R[k, k] == 0
+
+                    println("o elemento r_$j$j da diagonal principal de R é nulo. Portanto, não se pode fazer a decomposiçõ QR")
+
+                end
+
+            end
+
+        end
+
+    end
+
+    println("Processo de Decomposição QR finalizado!")
+    return Q, R
+
 end
