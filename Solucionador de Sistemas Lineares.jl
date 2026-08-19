@@ -8,7 +8,8 @@
 # SUJEITO A MUDANÇAS.
 
 using Random # IMPORTAR PARA USAR A BIBLIOTECA DE GERAÇÃO ALEATÓRIA.
-using LinearAlgebra
+# using MatrixDepot # BIBLIOTECA QUE PERMITE GERAR TIPOS ESPECIAIS DE MATRIZES.
+using LinearAlgebra # BIBLIOTECA QUE POSSUIS FUNÇÕES DE ÁLGEBRA LINEAR.
 
 # -------- FIM DAS IMPORTAÇÕES DE BIBLIOTECAS ----------
 """
@@ -20,7 +21,7 @@ function help()
     println("\nfunções existentes: sts(), sti(), lu(), chol(), jacobi(), gauss()\ndigite \"?\" e a função sem/com o parênteses para obter mais informações.")
 end
 
-function ismatrizquadrada(A::Matrix) # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
+function ismatrizquadrada(A) # FUNÇÃO QUE VERIFICA SE MATRIZ É QUADRADA.
 
     linha = size(A, 1)
     coluna = size(A, 2)
@@ -39,7 +40,7 @@ function isvetorcoluna(b::Vector) # FUNÇÃO QUE VERIFICA SE O VETOR DOS TERMOS 
 
 end
 
-function criterios(A::Matrix, b::Vector, x::Vector, digitos::Int, limite::Int) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
+function criterios(A, b::Vector, x::Vector, digitos::Int, limite::Int) # VERIFICA MAIS CONDIÇÕES PARA OS MÉTODOS ITERATIVOS.
 
     ismatrizquadrada(A)
 
@@ -83,7 +84,7 @@ ESSA FUNÇÃO VAI RESOVER UM SISTEMA LINEAR Ax = b USANDO UM SISTEMA TRIANGULAR 
 ```O RESULTADO SERÁ O VETOR b.```
 
 """
-function sti(A::Matrix, b::Vector) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
+function sti(A, b::Vector) # o algoritmo de fato que resolve o sistema triangular inferior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
     ismatrizquadrada(A)  # VERIFICA SE A MATRIZ É QUADRADA.
 
@@ -140,7 +141,7 @@ ESSA FUNÇÃO VAI RESOLVER O SISTEMA LINEAR `Ax = b` VIA SISTEMA TRIANGULAR SUPE
 # O RESULTADO SERÁ O VETOR "b".
 
 """
-function sts(A::Matrix, b::Vector) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
+function sts(A, b::Vector) # o algoritmo de fato que resolve o sistema triangular superior pelo algoritmo descoberto no livro: "Cálculo Numérico: aprendizagem com Apoio de Software"
 
     ismatrizquadrada(A)  # VERIFICA SE A MATRIZ É QUADRADA.
 
@@ -184,7 +185,7 @@ ESSA FUNÇÃO VAI DECOMPOR A MATRIZ "A" NO PRODUTO LU ONDE "L" É UMA MATRIZ TRI
 lu(A) ==> `L = [1 0 0; 1 1 0; 1 0.25 1]` e `U = [2 3 4; 0 -4 -3; 0 0 2.75]`
 
 """
-function lu(A::Matrix) # função responsável por verificar se é possivel decompor a matriz de coeficientes A em duas matrizes LU. Se possível, vai decompor a matriz A e mostrar as duas matrizes L e U obtidas.
+function lu(A) # função responsável por verificar se é possivel decompor a matriz de coeficientes A em duas matrizes LU. Se possível, vai decompor a matriz A e mostrar as duas matrizes L e U obtidas.
 
     # criamos as variáveis tamanho, menor_principal e continuar
     # tamanho: recebe o tamanho da matriz quadrada inserida.
@@ -218,7 +219,7 @@ function lu(A::Matrix) # função responsável por verificar se é possivel deco
                 U[i, j] = A[i, j] - somatorio_u 
 
                 if U[i,i] == 0
-                    error("o elemento u_$i$i é nulo. Pelo Teorema da Decomposição LU, essa matriz não admite decomposição.")
+                    error("o elemento u_$i_$i é nulo. Pelo Teorema da Decomposição LU, essa matriz não admite decomposição.")
                 end
 
             elseif i > j # o caso em que a linha é maior que a coluna. Neste caso é calculado o valor de l_ij pois é possível isolá-lo. O algoritmo é literalmente igual a fórmula feita matemáticamente.
@@ -245,9 +246,9 @@ function lu(A::Matrix) # função responsável por verificar se é possivel deco
 
     produto_lu = L*U # salvamos o produto LU.
 
-    if isapprox(LinearAlgebra.norm(A - (produto_lu)), 0) == false 
+    if isapprox(norm(A - (produto_lu)), 0) == false 
 
-        erro_rel = LinearAlgebra.norm(A - (produto_lu))/LinearAlgebra.norm(A) # a norma padrão da julia é a norm p = 2 que é igual a norma encontrada em bibliografias de álgebra linear. A norma de Frobenius.
+        erro_rel = norm(A - (produto_lu))/norm(A) # a norma padrão da julia é a norm p = 2 que é igual a norma encontrada em bibliografias de álgebra linear. A norma de Frobenius.
         println("O resultado do produto LU foi aproximado por um erro relativo de: $erro_rel\n")
 
     end
@@ -271,7 +272,7 @@ resolver_lu(L, U ,b). A FUNÇÃO RESOLVE O SISTEMA LINEAR Ax = b PELO MÉTODO (L
 A FUNÇÃO UTILIZA AS FUNÇÕES sti() E sts() PARA O CÁLCULO.
 
 """
-function resolver_lu(L::Matrix, U::Matrix, b::Vector)
+function resolver_lu(L, U, b::Vector)
 
     # -------------- VERIFICAÇÕES ANTES DE INICIAR O PROCESSO DE SOLUÇÃO DE SISTEMA POR LU --------------
 
@@ -289,7 +290,7 @@ function resolver_lu(L::Matrix, U::Matrix, b::Vector)
     # ATENÇÃO !
     # como estamos usando o determinante, acredito que seja mais eficiente usar apenas um checador se os elementos da diagonal principal não são nulos!
 
-    if LinearAlgebra.det(U) == 0 
+    if det(U) == 0 
         error("Como o determinante da matriz U é nula, não podemos realizar U^(-1) * y.\n Porntanto, impossível de resolver.")
     end
 
@@ -297,8 +298,8 @@ function resolver_lu(L::Matrix, U::Matrix, b::Vector)
     # 
     # --------------- ALGORITMO PARA RESOLVER SISTEMA LINEAR VIA LU. UTILIZAMOS AS FUNÇÕES STI() E STS() JÁ CRIADAS PARA APROVEITAR ------------------
     
-    y = sti(LinearAlgebra.LowerTriangular(L), b) # obtemos o vetor y para usar depois na função sts()
-    vetor_sol = sts(LinearAlgebra.UpperTriangular(U), y) # aqui obtemos o vetor solução do sistema!
+    y = sti(LowerTriangular(L), b) # obtemos o vetor y para usar depois na função sts()
+    vetor_sol = sts(UpperTriangular(U), y) # aqui obtemos o vetor solução do sistema!
 
     println("O vetor solução é: $vetor_sol")
 
@@ -322,7 +323,7 @@ A MATRIZ "R^T" É A MATRIZ TRANSPOSTA DE `"R"` E `"R"` É UMA MATRIZ TRIANGULAR 
 # chol(A) ==> `R = [2.23607 0.89443; 0 0.44721] e R^T = [2.23607 0; 0.89443 0.44721]`
 
 """
-function chol(A::Matrix)
+function chol(A)
 
     ismatrizquadrada(A)
 
@@ -330,7 +331,7 @@ function chol(A::Matrix)
 
     # PRIMEIRO CHECAMOS SE A MATRIZ INSERIDA É SIMÉTRICA OU NÃO. BASTA VERIFICAR SE A = A^T
 
-    if LinearAlgebra.issymmetric(A) == false
+    if issymmetric(A) == false
 
         error("A matriz inserida não é simétrica! A ≠ A^T.")
 
@@ -402,7 +403,7 @@ function chol(A::Matrix)
 
     end
 
-    R_transposta = LinearAlgebra.transpose(R)
+    R_transposta = transpose(R)
 
     println("-------------- Decomposição via Cholesky finalizada! ---------------\n")
 
@@ -452,7 +453,7 @@ function testar_lu()
 
         x = resolver_lu(L, U, b)
 
-        erro = LinearAlgebra.norm(b - ((L*U)*x))  # é calculado a diferença entre o vetor b e o vetor (LU)x que é justamente o b. Isso é feito em norma!
+        erro = norm(b - ((L*U)*x))  # é calculado a diferença entre o vetor b e o vetor (LU)x que é justamente o b. Isso é feito em norma!
 
         print("o erro na $loop ° iteração foi de: $erro\n")
         loop += 1
@@ -493,7 +494,7 @@ end
 O RESULTADO VAI SER => [0.4, 1.2].
 
 """
-function jacobi(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::Int, limite::Int)
+function jacobi(A::Matrix, b::Vector, chute_inicial::Vector, tol, digitos::Int, limite::Int)
 
     x .= Vector{Float64}(chute_inicial)
 
@@ -572,10 +573,7 @@ function jacobi(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::Int
 
         x_iterativo = H * x + g
         
-        erro_relativo = LinearAlgebra.norm(x_iterativo - x)/LinearAlgebra.norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
-
-        println(iteracao)
-        println(x_iterativo)
+        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO PARA COMPARAR COM A TOLERANCIA FIXA.
 
         if any(isnan, x_iterativo) || iteracao >= 40000 # VERIFICAÇÃO SE O VETOR ITERATIVO EXPLODIU PARA +∞ ou -∞
 
@@ -637,7 +635,7 @@ MÉTODO ITERATIVO DE GAUSS-SIEDEL. UTILIZA-SE O CRITÉRIO DE SASSENFELD.
 `julia> A solução do sistema é: [1, 2, 0]`
 
 """
-function gauss(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::Int, limite::Int)
+function gauss(A, b::Vector, chute_inicial::Vector, tol, digitos::Int, limite::Int)
 
     x .= Vector{Float64}(chute_inicial) # APENAS PARA DIZER QUE O VETOR "x" ACEITA VALORES PONTOS FLUTUANTES.
 
@@ -713,7 +711,7 @@ function gauss(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::Int,
 
         end
         
-        erro_relativo = LinearAlgebra.norm(x_iterativo - x)/LinearAlgebra.norm(x_iterativo) # CALCULA O ERRO RELATIVO.
+        erro_relativo = norm(x_iterativo - x)/norm(x_iterativo) # CALCULA O ERRO RELATIVO.
 
         # CASO A MATRIZ NÃO ATENDER O CRITÉRIO DE SASSENFELD, PODE OCORRER DE A ITERAÇÃO NÃO CONVERGIR PARA A SOLUÇÃO DO SISTEMA.
         # NESSE CASO, SERA ADICIONADO UM CONDICIONAL IF PARA CANCELAR A ITERAÇÃO E NÃO FICAR RODANDO O PROGRAMA INFINITAMENTE.
@@ -771,7 +769,7 @@ end
 ESSA FUNÇÃO NÃO CONTÉM UM MÉTODO DE PRE-CONDICIONAMENTO EMBUTIDO.
 
 """
-function gradconj(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::Int)
+function gradconj(A, b::Vector, chute_inicial::Vector, tol, digitos::Int)
 
     x .= chute_inicial  
 
@@ -825,7 +823,7 @@ function gradconj(A::Matrix, b::Vector, chute_inicial::Int, tol::Int, digitos::I
         x .= x_iterativo
         v .= v_iterativo
 
-        if LinearAlgebra.norm(r) < tol || LinearAlgebra.norm(r) == 0 # VERIFICAMOS SE ESTÁ ABAIXO DA TOLERÂNCIA FIXA OU SE A NORMA É ZERO. SE SIM, OBTEMOS A SOLUÇÃO.
+        if norm(r) < tol || norm(r) == 0 # VERIFICAMOS SE ESTÁ ABAIXO DA TOLERÂNCIA FIXA OU SE A NORMA É ZERO. SE SIM, OBTEMOS A SOLUÇÃO.
 
             println("Iteração concluida! n° de passos: $iteracao\n")
 
@@ -861,15 +859,14 @@ A MATRIZ `"R"` É TRIANGULAR SUPERIOR CUJOS TERMOS SÃO `<a_j, q_k>`.
 A FUNÇÃO RETORNA AS MATRIZES `"Q"` E `"R"`.
 
 """
-function qr(A::Matrix) 
+function qr(A) 
 
     # NA FATORAÇÃO QR, Q É A MATRIZ FORMADA PELOS VETORES COLUNAS DA MATRIZ A PORÉM, FORMANDO UM CONJUNTO ORTONORMALIZADO.
     # UTILIZA-SE O PROCESSO DE ORTOGORNALIZAÇÃO DE GRAM-SCHMIDT.
 
     # VERIFICAR SE A POSSUI TODOS OS VETORES COLUNAS L.I
 
-    linha = size(A, 1)
-    coluna = size(A, 2)
+    linha, coluna = size(A)
 
     Q = zeros(linha, coluna)
     R = zeros(coluna, coluna)
@@ -888,24 +885,23 @@ function qr(A::Matrix)
 
     for j in 1:coluna
 
-        soma = 0
-
         if j == 1 # PRIMEIRO CASO. PARA
 
             q = A[:, 1]
 
             q = q/norm(q)
 
-            Q[:, 1] = q
+            Q[:, j] = q
 
             R[j, j] = dot(A[:, j], Q[:, j])
 
         else # PRÓXIMOS CASOS QUE SÃO ITERATIVOS.
     
+            soma = 0
 
             for k in 1:j-1 # CALCULANDO OS PRODUTOS INTERNOS
 
-                soma = dot(A[:, j], Q[:, k])*Q[:, k]
+                soma = soma .+ (dot(A[:, j], Q[:, k])*Q[:, k])
 
             end
 
@@ -936,6 +932,30 @@ function qr(A::Matrix)
 
 end
 
+# ------------- FIM DA FUNÇÃO ---------------------
+
+# ------------- FUNÇÃO: GENERALIZED MINIMAL RESIDUE METHOD -------------------
+
 function gmres()
 
 end
+
+# -------------- FIM DA FUNÇÃO ---------------------
+
+
+# ------------- FUNÇÃO: PRECONDICIONAR MATRIZ -------------
+function precondicionar(metodo::Int, A)
+
+    if metodo == 1 # PRECONDICIONADOR DE JACOBI, MÉTODO MAIS SIMPLES DE PRECONDICIONAMENTO.
+
+        M = Diagonal(A)
+        M_inv = inv(M)
+
+        println("Matriz Precondicionada com Sucesso! (OPÇÃO 1)\n")
+
+        return M_inv
+
+    end
+
+end
+
