@@ -101,17 +101,22 @@ def gaxpy(x, y, A):
         print("Ou o n° de linhas de y não bate com o n° de linhas de A\n")
 
         return 0
+    
+    else: # gaxpy com produto interno.
 
-    else:
+        for i in range(0, linhas_y[0]): 
 
-        for i in range(0, linhas_y[0]):
+            y[i] = y[i] + dot(A[i], x) # y_i + produto interno(A[i], x)
 
-            for j in range(0, dim_A[1]):
+    #else: # Gaxpy sem uso do produto interno
 
-                print(y[i], A[i, j], x[j])
-                y[i] = y[i] + A[i, j]*x[j] # Só fazer no caderno para entender o raciocínio do que esta acontecendo aqui.
+    #    for i in range(0, linhas_y[0]):
 
-                
+    #        for j in range(0, dim_A[1]):
+
+    #            y[i] = y[i] + A[i, j]*x[j] # Só fazer no caderno para entender o raciocínio do que esta acontecendo aqui.
+
+               
 
 
     print("Algoritmo Gaxpy realizado com sucesso!\n")
@@ -126,9 +131,9 @@ matriz_A = array([[1, 1],[1, 1]])
 
 # NÃO ESQUECER QUE ESTAMOS SUBSTITUINDO vetor_y POIS NÃO CRIAMOS OUTRO PARA OCUPAR MAIS MEMÓRIA.
 
-dot(vetor_x, vetor_y) # retorna 100 ao fazer produto escalar de vetor_a com vetor_b
+# dot(vetor_x, vetor_y) # retorna 100 ao fazer produto escalar de vetor_a com vetor_b
 
-saxpy(vetor_x, vetor_y, 1) # retorna a soma entre vetor_x e vetor_y.
+# saxpy(vetor_x, vetor_y, 1) # retorna a soma entre vetor_x e vetor_y.
 
 gaxpy(vetor_x, vetor_y, matriz_A) # RESULTADO FINAL É [7, 9]
 
