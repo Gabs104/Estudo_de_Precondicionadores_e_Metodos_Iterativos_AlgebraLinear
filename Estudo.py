@@ -58,8 +58,6 @@ def saxpy(x, y, a):
 
     # Aqui obtemos os números de linhas e colunas dos vetores x e y.
 
-    old_y = y # só para printar no resultado final a fim de verificar.
-
     linhas_x = x.shape
     linhas_y = y.shape
 
@@ -76,7 +74,6 @@ def saxpy(x, y, a):
 
             y[i] = y[i] + a*x[i] # realizamos o produto a * x[i] e ai somamos com y[i].
 
-    print(f"Soma realizada com sucesso entre {old_y} e {a*x}\n")
     print(f"Resultado:{y}\n")
 
     return y
@@ -131,7 +128,7 @@ matriz_A = array([[1, 1],[1, 1]])
 
 # NÃO ESQUECER QUE ESTAMOS SUBSTITUINDO vetor_y POIS NÃO CRIAMOS OUTRO PARA OCUPAR MAIS MEMÓRIA.
 
-# dot(vetor_x, vetor_y) # retorna 100 ao fazer produto escalar de vetor_a com vetor_b
+# dot(vetor_x, vetor_y) # 
 
 # saxpy(vetor_x, vetor_y, 1) # retorna a soma entre vetor_x e vetor_y.
 
